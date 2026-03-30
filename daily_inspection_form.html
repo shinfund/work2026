@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>청하터널(주) 일일점검일지 - Excel 생성</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .card h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        
+        input[type="text"],
+        input[type="text" inputmode="decimal" data-numeric="true"],
+        input[type="date"],
+        input[type="time"],
+        select {
+            width: 100%;
+            padding: 10px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="text" inputmode="decimal" data-numeric="true"]:focus,
+        input[type="date"]:focus,
+        input[type="time"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .panel-row {
+            margin-bottom: 6px;
+        }
+
+        .panel-row-input {
+            display: grid;
+            grid-template-columns: 90px repeat(6, 1fr) 50px;
+            gap: 8px;
+            align-items: center;
+        }
+        .panel-row-input > input,
+        .panel-row-input > div {
+            min-width: 0;
+        }
+        .panel-row-input > input {
+            width: 100%;
+            padding: 10px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .panel-row-input > div > input {
+            width: 100%;
+            padding: 10px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .panel-row input[type="text"],
+        .panel-row input[type="text" inputmode="decimal" data-numeric="true"] {
+            width: 100%;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-add {
+            background: #667eea;
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-add:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-remove {
+            background: #ef4444;
+            color: white;
+            padding: 8px 12px;
+            min-width: 60px;
+        }
+        
+        .btn-remove:hover {
+            background: #dc2626;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .btn-secondary:hover {
+            background: #d0d0d0;
+            transform: translateY(-3px);
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            max-width: 600px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        
+        .excel-upload-area {
+            border: 2px dashed #aab;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fafbfc;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 200px;
+        }
+        .excel-upload-area:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+        .excel-upload-area.has-file {
+            border-style: solid;
+            border-color: #667eea;
+            display: block;
+        }
+        .excel-upload-area .upload-icon {
+            font-size: 24px;
+            color: #aab;
+        }
+        .excel-upload-area .upload-text {
+            color: #888;
+            font-size: 13px;
+            text-align: left;
+        }
+        .btn-excel {
+            background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+            color: white;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+        .btn-excel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.3);
+        }
+        .btn-excel:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .excel-status {
+            margin-top: 10px;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+        }
+        .excel-status.processing {
+            display: block;
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+        .excel-status.success {
+            display: block;
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+        .excel-status.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+
+        @media (max-width: 768px) {
+            body { padding: 8px; }
+            .container { border-radius: 8px; }
+            .content { padding: 12px; }
+            .card { padding: 12px; margin-bottom: 12px; }
+            h2 { font-size: 15px; }
+
+            .panel-row-input {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row { flex-direction: column; gap: 8px; }
+            .excel-upload-area { min-width: 100px; min-height: 90px; padding: 10px; }
+            .excel-upload-area .upload-text { font-size: 11px; }
+            .btn-excel, .btn-add, .btn-remove, .btn-secondary { padding: 8px 12px !important; font-size: 13px !important; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 4px; }
+            .header h1 { font-size: 18px; }
+            .header p { font-size: 12px; }
+            .card { padding: 10px; }
+            .excel-upload-area { min-width: 80px; min-height: 80px; }
+        }
+
+        @media print {
+            body { background: white !important; padding: 10px !important; }
+            .container { box-shadow: none !important; max-width: 100% !important; }
+            .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .action-buttons, .btn-group, .excel-upload-area,
+            .btn-excel, .btn-add, .btn-remove, #excelResults,
+            .excel-status, #scadaExcelArea, #btnExcelImport { display: none !important; }
+            .card { break-inside: avoid; page-break-inside: avoid; border: 1px solid #ddd !important; }
+            input, select, textarea { border: none !important; background: transparent !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="mainTitle" style="display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:0;border-bottom:2px solid rgba(255,255,255,0.7);padding-bottom:4px;">
+                <select id="tunnelSelect" onchange="onTunnelChange()" style="font-size:32px;font-weight:bold;background:transparent;color:white;border:none;padding:2px 4px;cursor:pointer;outline:none;width:auto;">
+                    <option value="청하터널(주)" style="color:#333">청하터널(주)</option>
+                    <option value="흥해터널" style="color:#333">흥해터널</option>
+                    <option value="청하터널(부)" style="color:#333">청하터널(부)</option>
+                    <option value="남정5터널" style="color:#333">남정5터널</option>
+                    <option value="기타" style="color:#333">직접 입력</option>
+                </select><span style="font-size:36px;letter-spacing:4px;">일 일 점 검 일 지</span>
+                <input type="text" id="tunnelCustom" placeholder="터널명 입력" style="display:none;font-size:0.8em;font-weight:bold;background:transparent;color:white;border:2px solid rgba(255,255,255,0.5);border-radius:8px;padding:4px 12px;width:200px;outline:none;margin-left:8px;" oninput="updateTitle()">
+            </h1>
+            <p>Excel 파일 자동 생성 시스템</p>
+        </div>
+        
+        <div class="content">
+            <form id="inspectionForm">
+                <!-- 기본 정보 -->
+                <div class="card">
+                    <h2>1. 날짜</h2>
+                    <!-- 헤더 -->
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px;font-size:13px;font-weight:600;color:#555;text-align:center;">
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">일자</div>
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">날씨</div>
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">전기안전관리자</div>
+                    </div>
+                    <!-- 입력 -->
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+                        <div style="min-width:0;">
+                            <input type="date" id="date" name="date" required style="width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                        </div>
+                        <div style="min-width:0;">
+                            <select id="weather" name="weather" required data-cell="R3" style="width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                                <option value="">선택하세요</option>
+                                <option value="맑음">맑음</option>
+                                <option value="흐림">흐림</option>
+                                <option value="비">비</option>
+                                <option value="눈">눈</option>
+                            </select>
+                        </div>
+                        <div style="min-width:0;">
+                            <select id="managerSelect" onchange="onManagerChange()" style="width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                                <option value="공  우  식">공 우 식</option>
+                                <option value="김  동  록">김 동 록</option>
+                                <option value="신  종  섭">신 종 섭</option>
+                                <option value="김  태  선">김 태 선</option>
+                                <option value="손  대  현">손 대 현</option>
+                                <option value="__custom__">직접 입력</option>
+                            </select>
+                            <input type="text" id="manager" name="manager" data-cell="H5" placeholder="직접 입력" style="display:none;margin-top:6px;width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- HMI Report 데이터 가져오기 -->
+                <div class="card" style="border-left-color: #f59e0b;">
+                    <h2 style="color: #92400e;font-size:16px;">HMI 원본 데이터 추가</h2>
+                    <p style="font-size:12px;color:#888;margin-bottom:10px;">
+                        HMI Report 엑셀 파일(.xlsx)을 업로드하여 점검 데이터를 자동으로 불러옵니다.
+                    </p>
+                    <div style="display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;margin-bottom:10px;">
+                        <div class="excel-upload-area" id="scadaExcelArea" onclick="document.getElementById('scadaExcelInput').click()" style="flex:1;max-width:250px;border-color:#16a34a;">
+                            <div class="upload-icon">📊</div>
+                            <div class="upload-text">① 엑셀 업로드<br><small>(HMI 원본 데이터.xlsx)</small></div>
+                            <div id="excelFileName" style="display:none;font-size:11px;color:#16a34a;word-break:break-all;padding:4px;text-align:center;font-weight:600;"></div>
+                            <input type="file" id="scadaExcelInput" accept=".xlsx,.xls" style="display:none" onchange="handleScadaExcelUpload(event)">
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <button type="button" class="btn-excel" id="btnExcelImport" onclick="importFromExcel()" disabled style="padding:10px 16px;font-size:13px;background:#059669;border-color:#059669;color:#fff;">
+                            ② 엑셀 불러오기
+                        </button>
+                    </div>
+                    <div id="excelStatus" class="excel-status"></div>
+                    <div id="excelResults" style="display:none;margin-top:15px;">
+                        <h3 style="font-size:15px;color:#374151;margin-bottom:8px;">추출 결과 (확인 후 적용)</h3>
+                        <div id="excelResultContent"></div>
+                        <div style="display:flex;gap:10px;margin-top:12px;">
+                            <button type="button" class="btn-add" onclick="applyExcelResults()" style="flex:1;">③ 폼에 적용</button>
+                            <button type="button" class="btn-secondary" onclick="document.getElementById('excelResults').style.display='none'" style="padding:10px 16px;font-size:14px;">취소</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 비상발전기 -->
+                <div class="card">
+                    <h2>2. 비상발전기 운전</h2>
+                    <!-- 1행 헤더 -->
+                    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:6px;font-size:13px;font-weight:600;color:#555;text-align:center;">
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">가동시간</div>
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">경유 입고량 (L)</div>
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">일사용량 (L)</div>
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">사용누계 (L)</div>
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">잔량 (L)</div>
+                    </div>
+                    <!-- 1행 입력 -->
+                    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px;">
+                        <div style="min-width:0;">
+                            <input type="text" id="genRuntime" name="genRuntime" data-cell="C44" placeholder="예) 10:00 ~ 10:10" style="width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                        </div>
+                        <div style="min-width:0;">
+                            <input type="text" inputmode="decimal" data-numeric="true" id="fuelInflow" name="fuelInflow" step="0.1" data-cell="K44" style="width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                        </div>
+                        <div style="min-width:0;">
+                            <input type="text" inputmode="decimal" data-numeric="true" id="fuelDaily" name="fuelDaily" step="0.1" data-cell="O44" style="width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                        </div>
+                        <div style="min-width:0;">
+                            <input type="text" inputmode="decimal" data-numeric="true" id="fuelTotal" name="fuelTotal" step="0.1" data-cell="S44" style="width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                        </div>
+                        <div style="min-width:0;">
+                            <input type="text" inputmode="decimal" data-numeric="true" id="fuelRemain" name="fuelRemain" step="0.1" data-cell="W44" value="870" style="width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                        </div>
+                    </div>
+                    <!-- 2행 헤더 -->
+                    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:6px;font-size:13px;font-weight:600;color:#555;text-align:center;">
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">가동사유</div>
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">청소 상태</div>
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">누유 상태</div>
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">히터 상태</div>
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">진동 상태</div>
+                    </div>
+                    <!-- 2행 입력 -->
+                    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+                        <div style="min-width:0;">
+                            <select id="genReasonSelect" onchange="onGenReasonChange()" style="width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                                <option value="">선택</option>
+                                <option value="무부하 시운전">무부하 시운전</option>
+                                <option value="부하 시운전">부하 시운전</option>
+                                <option value="__custom__">직접 입력</option>
+                            </select>
+                            <input type="text" id="genReason" name="genReason" data-cell="AA44" placeholder="직접 입력" style="display:none;margin-top:6px;width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                        </div>
+                        <div style="min-width:0;">
+                            <select id="cleanStatus" name="cleanStatus" data-cell="AG44" style="width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                                <option value="">선택</option>
+                                <option value="양호">양호</option>
+                                <option value="불량">불량</option>
+                            </select>
+                        </div>
+                        <div style="min-width:0;">
+                            <select id="leakStatus" name="leakStatus" data-cell="AJ44" style="width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                                <option value="">선택</option>
+                                <option value="양호">양호</option>
+                                <option value="불량">불량</option>
+                            </select>
+                        </div>
+                        <div style="min-width:0;">
+                            <select id="heaterStatus" name="heaterStatus" data-cell="AM44" style="width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                                <option value="">선택</option>
+                                <option value="양호">양호</option>
+                                <option value="불량">불량</option>
+                            </select>
+                        </div>
+                        <div style="min-width:0;">
+                            <select id="vibrationStatus" name="vibrationStatus" data-cell="AP44" style="width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                                <option value="">선택</option>
+                                <option value="양호">양호</option>
+                                <option value="불량">불량</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 전력사용량 -->
+                <div class="card">
+                    <h2>3. 전력사용량</h2>
+                    <!-- 헤더 라벨 -->
+                    <div style="display:grid;grid-template-columns:90px repeat(4,1fr);gap:8px;margin-bottom:6px;font-size:13px;font-weight:600;color:#555;text-align:center;">
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">구분</div>
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">최대수요(kW)</div>
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">금일 유효전력량(kWh)</div>
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">누계 월전력사용량(kWh)</div>
+                        <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">역율(%)</div>
+                    </div>
+                    <div style="margin-bottom:6px;">
+                        <div style="display:grid;grid-template-columns:90px repeat(4,1fr);gap:8px;align-items:center;">
+                            <label style="margin:0;font-weight:600;font-size:13px;">전체</label>
+                            <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="kW" data-cell="M48" style="min-width:0;width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                            <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="kWh" data-cell="R48" id="powerAllDaily" style="min-width:0;width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                            <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="kWh" data-cell="W48" id="powerAllAcc" style="min-width:0;width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                            <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="%" data-cell="AH48" style="min-width:0;width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom:6px;">
+                        <div style="display:grid;grid-template-columns:90px repeat(4,1fr);gap:8px;align-items:center;">
+                            <label style="margin:0;font-weight:600;font-size:13px;">조명용</label>
+                            <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="kW" data-cell="M49" style="min-width:0;width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                            <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="kWh" data-cell="R49" id="powerLightDaily" style="min-width:0;width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                            <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="kWh" data-cell="W49" id="powerLightAcc" style="min-width:0;width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                            <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="%" data-cell="AH49" style="min-width:0;width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom:6px;">
+                        <div style="display:grid;grid-template-columns:90px repeat(4,1fr);gap:8px;align-items:center;">
+                            <label style="margin:0;font-weight:600;font-size:13px;">일반/동력용</label>
+                            <input type="text" data-cell="M50" value="-" readonly style="min-width:0;width:100%;padding:10px 8px;text-align:center;background:#f3f4f6;color:#999;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                            <input type="text" data-numeric="true" placeholder="자동계산" data-cell="R50" id="powerGenDaily" readonly style="min-width:0;width:100%;padding:10px 8px;background:#f0fdf4;color:#065f46;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                            <input type="text" data-numeric="true" placeholder="자동계산" data-cell="W50" id="powerGenAcc" readonly style="min-width:0;width:100%;padding:10px 8px;background:#f0fdf4;color:#065f46;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                            <input type="text" data-cell="AH50" value="-" readonly style="min-width:0;width:100%;padding:10px 8px;text-align:center;background:#f3f4f6;color:#999;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom:0;">
+                        <div style="display:grid;grid-template-columns:90px repeat(4,1fr);gap:8px;align-items:center;">
+                            <label style="margin:0;font-weight:600;font-size:13px;">배율</label>
+                            <input type="text" id="powerMultiplier" name="powerMultiplier" data-cell="AM48" value="720" style="min-width:0;width:100%;padding:10px 8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box;">
+                            <div></div><div></div><div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 고압반 VCB -->
+                <div class="card">
+                    <h2>4. 고압반 VCB</h2>
+                    <div id="hvPanels"><!-- Dynamic rows -->
+                        <div class="panel-row-header" style="display:grid;grid-template-columns:90px repeat(6,1fr) 50px;gap:8px;margin-bottom:4px;font-size:12px;font-weight:600;color:#555;text-align:center;">
+                            <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">구분</div>
+                            <div style="grid-column:span 3;border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">전압 (kV)</div>
+                            <div style="grid-column:span 3;border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">전류 (A)</div>
+                            <div></div>
+                        </div>
+                        <div class="panel-row-header" style="display:grid;grid-template-columns:90px repeat(6,1fr) 50px;gap:8px;margin-bottom:6px;font-size:11px;font-weight:600;color:#555;text-align:center;">
+                            <div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">판넬명</div>
+                            <div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">R-S</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">S-T</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">T-R</div>
+                            <div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">R</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">S</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">T</div>
+                            <div></div>
+                        </div></div>
+                    <div class="btn-group">
+                        <button type="button" class="btn-add" onclick="addHVPanel()">+ 고압반 추가</button>
+                    </div>
+                </div>
+
+                <!-- 저압반 ACB -->
+                <div class="card">
+                    <h2>5. 저압반 ACB</h2>
+                    <div id="lvPanels"><!-- Dynamic rows -->
+                        <div class="panel-row-header" style="display:grid;grid-template-columns:90px repeat(6,1fr) 50px;gap:8px;margin-bottom:4px;font-size:12px;font-weight:600;color:#555;text-align:center;">
+                            <div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">구분</div>
+                            <div style="grid-column:span 3;border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">전압 (V)</div>
+                            <div style="grid-column:span 3;border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">전류 (A)</div>
+                            <div></div>
+                        </div>
+                        <div class="panel-row-header" style="display:grid;grid-template-columns:90px repeat(6,1fr) 50px;gap:8px;margin-bottom:6px;font-size:11px;font-weight:600;color:#555;text-align:center;">
+                            <div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">판넬명</div>
+                            <div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">R-S</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">S-T</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">T-R</div>
+                            <div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">R</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">S</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">T</div>
+                            <div></div>
+                        </div></div>
+                    <div class="btn-group">
+                        <button type="button" class="btn-add" onclick="addLVPanel()">+ 저압반 추가</button>
+                    </div>
+                </div>
+
+                <!-- UPS -->
+                <div class="card">
+                    <h2>6. UPS (무정전 전원 공급)</h2>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>조명용 50kVA - 입력</label>
+                            <div class="grid-3">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="V" data-cell="O17">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="V" data-cell="S17">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="V" data-cell="W17">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="AA17">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="AG17">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="AK17">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>조명용 50kVA - 출력</label>
+                            <div class="grid-3">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="V" data-cell="O18">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="V" data-cell="S18">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="V" data-cell="W18">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="AA18">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="AG18">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="AK18">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>일반용 60kVA - 입력</label>
+                            <div class="grid-3">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="V" data-cell="O19">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="V" data-cell="S19">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="V" data-cell="W19">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="AA19">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="AG19">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="AK19">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>일반용 60kVA - 출력</label>
+                            <div class="grid-3">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="V" data-cell="O20">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="V" data-cell="S20">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="V" data-cell="W20">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="AA20">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="AG20">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="AK20">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 태양광 -->
+                <div class="card">
+                    <h2>7. 태양광 발전</h2>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>50kW</label>
+                            <div class="grid-3">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="DC V" data-cell="K22">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="DC A" data-cell="O22">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="AC V" data-cell="S22">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="AC A" data-cell="W22">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="AC P(kW)" data-cell="AA22">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="누적(kWh)" data-cell="AG22">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="이용률(%)" data-cell="AK22">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>30kW</label>
+                            <div class="grid-3">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="DC V" data-cell="K24">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="DC A" data-cell="O24">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="AC V" data-cell="S24">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="AC A" data-cell="W24">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="AC P(kW)" data-cell="AA24">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="누적(kWh)" data-cell="AG24">
+                                <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="이용률(%)" data-cell="AK24">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="solarAccTotal">누적발전량합계 (kWh)</label>
+                        <input type="text" inputmode="decimal" data-numeric="true" step="0.1" id="solarAccTotal" name="solarAccTotal" data-cell="AO23" placeholder="자동 계산됨">
+                    </div>
+                </div>
+
+                <!-- 조명설비 -->
+                <div class="card">
+                    <h2>8. 조명설비</h2>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="lux1">조도계 1 (영덕) [lux]</label>
+                            <input type="text" inputmode="decimal" data-numeric="true" id="lux1" name="lux1" step="0.1" data-cell="AG30" placeholder="Lux">
+                        </div>
+                        <div class="form-group">
+                            <label for="lux2">조도계 2 (포항) [lux]</label>
+                            <input type="text" inputmode="decimal" data-numeric="true" id="lux2" name="lux2" step="0.1" data-cell="AG31" placeholder="Lux">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="measureTime">검측시간 (HH:MM)</label>
+                        <input type="time" id="measureTime" name="measureTime" data-cell="AO31">
+                    </div>
+                </div>
+
+                <!-- 금일작업 -->
+                <div class="card">
+                    <h2>9. 금일 작업내용</h2>
+                    <div id="workItems"><!-- Dynamic rows --></div>
+                    <div class="btn-group">
+                        <button type="button" class="btn-add" onclick="addWorkItem()">+ 작업 추가</button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button type="button" class="btn-primary" onclick="generateExcel()">
+                        📊 엑셀 파일 생성
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        const TEMPLATE_B64 = 'UEsDBBQABgAIAAAAIQBgknq+gAEAAAwGAAATAAgCW0NvbnRlbnRfVHlwZXNdLnhtbCCiBAIooAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADEVM1KAzEQvgu+w5Kr7Kb2ICLdevDnqELrA6TJdDc0m4TMVNu3dzbaIlJbigUvWbLJfD+T5BvdrjpXvEFCG3wtLquBKMDrYKxvavE6fSyvRYGkvFEueKjFGlDcjs/PRtN1BCy42mMtWqJ4IyXqFjqFVYjgeWUeUqeIp6mRUemFakAOB4MrqYMn8FRSjyHGo3uYq6Wj4mHFvz+VzKwXxd3nvp6qFipGZ7UiFirfvPlBUob53GowQS87hq4wJlAGWwDqXBWTZcY0ASI2hkLu5Ezg8DjSL1cVV2Zh2NqIF2z9F4Z+5XdXX3XPfBzJGiheVKIn1bF3uXLyPaTFLIRFtR/k2NbkFlWdsn6jew9/3owyfy5PLKT3l4GP1DH8Jx3Edx1kHv/eigxzwDjS2gGe+vgz6CHmViUwE+JX1JxcwHfsAzq0cvqu5at64iZscffxc7S8pBCR0yvB8QI2UdFXl5GBIJGFbVjsenRbRo6+PzuGPlsNmB3cMmf5+AMAAP//AwBQSwMEFAAGAAgAAAAhALVVMCP0AAAATAIAAAsACAJfcmVscy8ucmVscyCiBAIooAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACskk1PwzAMhu9I/IfI99XdkBBCS3dBSLshVH6ASdwPtY2jJBvdvyccEFQagwNHf71+/Mrb3TyN6sgh9uI0rIsSFDsjtnethpf6cXUHKiZylkZxrOHEEXbV9dX2mUdKeSh2vY8qq7iooUvJ3yNG0/FEsRDPLlcaCROlHIYWPZmBWsZNWd5i+K4B1UJT7a2GsLc3oOqTz5t/15am6Q0/iDlM7NKZFchzYmfZrnzIbCH1+RpVU2g5abBinnI6InlfZGzA80SbvxP9fC1OnMhSIjQS+DLPR8cloPV/WrQ08cudecQ3CcOryPDJgosfqN4BAAD//wMAUEsDBBQABgAIAAAAIQAnn/wtvQMAAAMJAAAPAAAAeGwvd29ya2Jvb2sueG1srFXLbuM2FN0X6D+oRIBZKSL1sCUh8kCybEyAZBA4btKuDFqiYyJ6GBT9CAazG/QPCnRRdF9gtgX6T538Qy8ly3bGRWGkNWzSvCTPPffeQ/Li7SbPtBUTFS+LAJFzjDRWJGXKi4cAfT8e6i7SKkmLlGZlwQL0xCr0tvftNxfrUjxOy/JRA4CiCtBcyoVvGFUyZzmtzssFK2BmVoqcShiKB6NaCEbTas6YzDPDxLhj5JQXqEHwxSkY5WzGExaXyTJnhWxABMuoBPrVnC+qFi1PToHLqXhcLvSkzBcAMeUZl081KNLyxL98KEpBpxmEvSGOthHw7cCPYGjM1hNMHbnKeSLKqpzJc4A2GtJH8RNsEPIiBZvjHJyGZBuCrbiq4Y6V6LySVWeH1dmDEfyf0QhIq9aKD8l7JZqz42ai3sWMZ+yuka5GF4v3NFeVypCW0UoOUi5ZGqAuDMs12xsgKrFcREuewazpdU0HGb2dnG+EBrCSiRvBVzR5gjOBNDgPrEF//uXTl98+T55/+uP5598nf33+88unX5GWshldZnIM0m8JwT7TNs2Owt4Ivy3PjRQa/L+Mr4DiLV0BYUhLutXzJTAi1qRIhE8mH6yBi/v20NPjbqev26Fr694ginTTjWPP9vpxaEUfIaei4yclXcr5NhcKOkA2BH40dU037QzB/pKnexof8Pajq/6rpp37qMJRp/6Os3W1z5oaapt7XqTlOkC6ZWEC7p92BoItpK3r6XueynmALIuYEHlje8f4wxw4ExccIU3S6Uid6AB52EEaTSRfsTGd1rUA8SjiAXpBOG4ID+Gjq+YFYeOAcX39APO614paMtg0uzqUubapGpiWpVTiKzfiMiUq6qMNcAEcboB4dxtMtcFoXYE6eMFSJSBwfDDaup9ssiI/B70VchLCFakEm9DsVl2Uig1GvTcNxTffnYVnxD8LR2cOvjAOoF6DS1pc8wDX6nyFe+gF6AOxBM6I6mq1egSbrgqXbeRVJeteWwoO9SE2DrvYs3U8sBzddj1Td23L1Pt2bA6c7iAeRI7Sr3o//P/jFoWTRhy/fZgUyzkVcixo8gjP2YjNIlrBgavLaQDfQ7KR40bYAor2kAx1m3hYj6KOrTvx0HK6JO4PnOGerAp/9so7zDXq3YzKpYDHFEjXY1+1w611Z5w1hq1SXjwG/iiuL5dm978tvIXoM3bi4uHdiQv776/H1yeuvRqMJ/fDUxeH11Ecnr4+HI3CH8eDH1oXxj8mtCm4amuZGq1Men8DAAD//wMAUEsDBBQABgAIAAAAIQD+aepXCgEAAMwDAAAaAAgBeGwvX3JlbHMvd29ya2Jvb2sueG1sLnJlbHMgogQBKKAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC8k09LxDAQxe+C3yHM3aatuohsugdF2KuuHyCk06Zsm5TM+Kff3lCxdWGpl+Jx3pD3fjwy291n14p3DNR4pyBLUhDojC8bVyt4PTxd3YEg1q7UrXeoYECCXXF5sX3GVnN8RLbpSUQXRwosc38vJRmLnabE9+jipvKh0xzHUMtem6OuUeZpupHhtwcUJ55iXyoI+/IaxGHoY/Lf3r6qGoOP3rx16PhMhOTIhdFQhxpZwTh+i1kSQUGeZ8jXZPjw4UgWkWeOSSI5bvIlmOyfYRab2awJY3RrHqxu3NzMJC01crsmBFkdsHzhEC+AZpATeQnmZlUYHtp4cNOHpXH+iZcnN1h8AQAA//8DAFBLAwQUAAYACAAAACEAuJXUhwVHAAD00QEAGAAAAHhsL3dvcmtzaGVldHMvc2hlZXQxLnhtbLR9W3McN9Ll+0bsf1DwaSZiLLG7urq6HJa/oHgXKd4tXiL2gZ9E24qRRK8k2+Pd2P++B5fMBApJqZBlOmbs1BESjSrkQQKJROGH//rPh/dP/rj79Pnd/cfna7On62tP7j6+uX/77uMvz9d+utj5brX25POX249vb9/ff7x7vvbX3ee1//rxf/6PH/68//Tvz7/e3X15gho+fn6+9uuXL799/+zZ5ze/3n24/fz0/re7j/ibn+8/fbj9gj9++uXZ598+3d2+9Uof3j+br68vn324ffdxLdTw/acxddz//PO7N3db929+/3D38Uuo5NPd+9svaP/nX9/99plq+/BmTHUfbj/9+/ffvntz/+E3VPHf796/+/KXr3TtyYc33+//8vH+0+1/v8dz/2e2uH3z5D+f8L85/t/Qz3i8+KUP7958uv98//OXp6j5WWhz+fj9s/7Z7RuuqXz+UdXMFs8+3f3xznWgVDW3NWnWcl1zqawxVrbkytzr+vT97+/ePl/7v/PZfLFq58vvVotl/91iZ2P7u357NftuY7NdzWabGy+a7eb/rf34w9t36GH3VE8+3f38fG1j9v3GeTtbe/bjD96CXr+7+/NzIj/5/Ov9n7uf3r09fPfxDuYIQ3bIzR06gv90+eu7L3fnv92+QY+iwB+o4/nab7e/3L2AZf77xL3Huz/Xnvyf+/sP529uXb/PZijHfz53Bn94+9f971/c78e/dlT47/v7fztoH4+4jtZ/vnt/98YZ5ZNb/OePu8279+/xEBctmvW/wwNBxsM846dJZXqyHU+fk09P3t79fPv7+y+b9+8v37398uvzNfRPxM7u/9y7e/fLr1/QnO7pcj39Z4YX7yz3+7d/bd19fgPKoHlP2zYrtL5wDXlz/x6/in8/+fDODQVgwO1/8F/80J/8k5+//OXeCrA3v3/+cv8hNsZ3i6iiu4MuhKg7e9rP2241m7sXMKqSBVUCgRrwdFFZCX4ttAQCVzK6CcuoPccgWPkO5j3pQuB30M3W+6Yb+/sNTM+3vkFnaL//67u3b+9CX32lOxr0Vqimvisb6konWB+DenIhdaAlo6xgwbqpFcyrXuOCjMAJ9AzrT5eL9WVijXjFX3mHCzKF2Sx5EUUl3+DFjG16pb+KQMNIwBWX7hPrHUufnlvsJDML+44Y5CQzD3swKBDRSfVM7JlOswe48JXOg8chMiaj2expHRvnruf9M8xdP8ZncG6Gh7NxfJzPyCC9VDuwzHhUcpKRk/MZ9et8LrWMZeV8LtqpVdTxcu6G1fBCLQOsjLAPDI8pmeY8CHopvrXl0/VuvRnvk+Y8HC4aGdbTt5b+5mJB4/cC85ZaB7JoyWi9ZCXwoiWr9ZKVwIuWB2InVRN40fIgvEwsZqwXWJKlLJxktHlMN6O9LTr0jJ3Ai44mR16qJPCi4451kvVhOu7XVb1bXzj/46nnJe7OSsfKHmrhpNr3sGKTWOkmkZFpxSbgJCOBFysygeUDPjX9zSX70G693mi7dWqxl6wE7tapyV6yEhi+Lva4l6oJ3Dm/6y2mm9dP47o5DR9eMtp856ZrsQ3itAweuGP/5aVKw+3Yb3nJ/DDcr0398qJz/ie8itQTPa0jcMceyku172HBJvHAzD4lU8dTeS8ZCdzxZL5/wKemv9mzD+2X9UbbL8lovWQlcL8kq/WSlcD9kuZ9XqomcO/8rreYvtPnLl9b//QrGj68ZLT5fkUW0ydOy0Dgnv2XlyoNt2e/5SXzw3C/9vXer3f+J3RH6okqCdyzh/JS7XvgxV3v1leKdrYeRcyIFnFeNFJ4tr4usaUH/Gr2u3N2pLP5rN50Z/M5t9uLViKjImm4E61URkU0BQxiNZmhxjG2eWOIDswbDg940ciB2bzh+MA8cWMGSqMqcmlBrDRmRJWlm51ofiR2a1gYSj1j18ZQEitJfVQltVGPGIkTq98Hr/xQlW4iOc1aMQknWumNCC0NE4sHvG72uwt2s7OFC43WPuei43Z70UzvRScNd6KZ3ouOo11erKf3wrnoEC9b9PWxg9miZ9vxopULi56HmUXi5Cz0XrDDQ+ss3SwBzUUW0ayL4uHHuZfb9frQ16x1LivuKaTeq5berXg1L9aafcvrwln7QEw0o1nLQVCUl+GkNgQGZTaJ7gFvnP1uJ963e2gf42t7SR1H7mZeNNO74+AdKkpWA9V7Sl3DgXkv1tO7cy472FC3qI8szLoFDzBetNK7W/Aw0yWuzkLvTryeF2vNuRNv50XzI4nX65YGr9k5lxW7JvVetfTuxKt5sfp98Kpx1j0QMc1pxiFSlLcHyKDMJtE/4I2z3+3F+/YPhPG+ulXcc1xv5kUzvXsO7aGiZJVQTe++53mkF+vp3TuXHTY21tfr4w5IjKEBJohGLkCZN5qQazNpy2qdvR5qrR+xoMR7PV60PxJvBK7PDLvy685lxa5JvVclvefr7NWCWElvKImJPBBPzbav1jmAClWJNlRvYK1zCBUrSH1imf1usm82N2zfz+cc9Quild7QZlv2onVyjop4/9SL1fRGDbL72dbHI7DhSgNMEK1cmC/ZhuaJqzN4b7SD97a9WGvOc/Z2qErMs3qLfc5eD1vM9UE1KImVpN6rlt5z9mqo0rQ/nmyQfzu0hp1wMQknxvdfTe85B1iRY/ftTTUU4mF58UAI8GveG/ERbrcXzfRuOSaIOieE1qDNuR5erKd361x2cBGty9So5UIrCRpetNK7lRSNNnF1Fnq34vW8WP1I4u1aJ5ofSbxe65LbqtvhXFbsmtR71dK7lWwQL9a3Q0zkgehr5kVbjrbOvWild8vRVoyO384gQyGeSHYPhAC/Su+OQ4IYWCdkkUGbx0Mvmr131/KA5cV6enfOZQcb6lweR23fd5y+MfeilQsdJ3Cgnmn5ZJ14PS/WPxJPibrE21V7744DqPNuZfCanXNZsWtS71VL7068mher3wcvJefdA9HXjN4dR1tR3h5agzIPK2M25BrZkGvWDWmRUCJfGUSr94Y2NTyIVnpDmwasIFbTG2o0A2zWXZZHZd9DiQaYIBrpDWUaZpr1xNUZvDf0yesFsfqRJAF83YnmR5Jk8PVFfWitWXcuy9M7iNy5dUkrUBYjcWL1++ClJKr69iQZhcQknGj03qiHTWLMhlwzZ+/bzA1Jk1DidnvRTO85xwRR54TQWjN3eZfBArxYT+85p1428wdy6L82o4ES244XrVyYc/IiqpwUWoM+eb0g1prznL0d9O3ZsVAW80yT9Efm6DZzztEPopXecGtkJF6sfR9wAaL/7UlyA15KeXtoDfWw5xmzIdfIhlzTGlIqocTt9qKZ3i3HBFFnsuCtjZxDm+aRQaynd8uJmU37QIb9V+ndcg5I40UrvVvOAUE94uos3rsVr+fFWnNuxdt50f5IYp5pCv9Yerecwd940UrvVryaF6vfBy8l0Y5vh9aalqOtQbR675ajrc2YDTkUYu/bGRIum45DgkE00xuHLml88yJ3XOVZSjSDlwterKd3x2mbTWfIAYESDzBetHKh4xwQVCku00LvTryeF2vNeSXezovWR1qJ11u5VP/qdnB+f4NT2EnyU+XkHCd8ydq8WN8OXiSsHoi+pmtvNJZNwotWeq842rpYH7Ehh0LkfRfrhgRMKFG7g2ilN7Rp+hhEK72hTQNWEKvpDTWaQS7WLSfe1uXImxeNXMCPkw1BnBRagz55zSBWmjOUpJuzCGpd1hrqkV52BwGq28HZ/zj1nOY2Vp74WpeTeF6sb4eYyAPR15Tei3U5LOdFI71RD5sEwmzq+8t+VzbkFnNDAiaUaBgMopnec44JoqIJWWvQ5gHLi/X0nnMG56Ix5IBAiQcYL1rp3XDm46JJXJ3Be0Of5kZBrDVnnB2O3g769tAalNk8G3c2oLodfBxg0aTeqzJyDmU2Ei/Wt4OHSwR7vk0zBB34/SVnwGv3vdFuHlbaERtyOArNw3JrSMDEaWhutxfN9G45Jog6J4TWcL6aoiZBrKd3yxmci9ZwWg5KbDtetNK75RwQVDkptAZ99pperDXnVrydF+2PJObpzgZUt4OPAyza1HvV0rvlNeXCi9Xt4KUk9L8dWkMhMYnkhHg1vVs5Kj5mQw6nJ3hYXhkSMBcrDgkG0UzvFccEUdGE0Bq0ecDyYj29V5zBuVgZTtEtVpwDEkQrF1acA4J6JoXWoM9e04u15rwSb+dF+yOx11u5swHV7eDjAPgaQ2oltZ9jEK+2cmJ9O3i4XI35vslKPnDixfh71fRecbS1HbMhh0Lkfdt1QwImjv2Qrwyild7QpuljEJmVlaE1aNOAFcRqekONuIADSvVZa1CiASaIRi5AmWwI4qTQGvTJawax0pxxqkq6OUmqrE1rQT3Sy+5sQHU7+DgAzmzZQ2tQFiNJ0kwAjvqUGvTFREZ8/QTlxSSSE3e19EY9bBJIYPjmogCZgTRraBtDAiaUuN1eNNO74Zgg6kyDJrX0blz+pt/3RkXJ/O8piDqu7xrO4Gwbwyk6KLHteNFK74ZzQFDlpNAa9MlrBrGWVg17O+iLt6umd8MB1LZxZwOq28HHAaBvD61BWYwkSTMZTe+Gl5JYAn/7aAcKiUkk58ur6Y2dWjLuMRty2PTjYbk1JGC2LYcEg2imd8sxQVQ0IbQGbR6wvFjvvVvO4Gxbwyk6KLHteNFK75ZzQNCV4uoMoTXos9f0Yi2tWvF2XjQ/kni9pTsbUNuOJR8HgOGmVlI3OYcyG4kX69vBw+VyxFdT8HtsEl6Mv1dN7yVHW/F5Zn1imUbOUYi978qQgNmuOCQYRDO9VxwTREUTQmuIdPCA5cV6eq84gxMREX0G9LW0Fiix7XjRyoUVZz6iykmhNejzpM6Ltea8Em/nRfsj8SJh5c4GVLeDjwMgyJRaSSW9V+LVvFjdDllKrkZ8NaVdcbQ1iFZ6rzjailHl27MGFKJZA0aVelOGEplyEK30hjaNh0FkVlZOzqFNA1YQq+kNNeICBkt9c/Fr9F7ii1hxBhVEIxegTC4X4qTQGvRpUhfESnOGEnezF+2PxL08S766PHZSvJzxcYAgcufW0RvKbCRerH4fvJREVd/ef17OONoaRCO9ocwmMWZDbikbcsvGkIC5bDgkGEQzvRuOCaKiCQdCoc0Dlhfr6d1wBucSKYfVLgZKbDtetHKh4RwQVDkptAZ98ppBrDXnhr3d0ovmR2Kvt2ySbzKPpnfDxwGgbw+tQVmMJPkoc0U7eLj01zso7zOdJOP3xCSSE3e1k3PUw55nzIbcUjbklq0hARNK3G4vmundckwQdU4IrUGbljlBrKd3yxmcS4zN9fTGGEve24tWLiw5BwTtmBRagz57TS/W0nsp3s6L9kdi81warhlYLvk4QBCt3nvJa0rUU79IgBIPl8sRX01Zwo2ySSQn7qrpDR9M9YzZkFvKhtxyZUjAhBK324tmeq84Jog6J4TWoM3zSC/W03vFGZzLleEUHZR4gPGilQsrPkS3XE27fgD6PKnzYi29V+LtvGh+JA6gLleGSwigJOadriUr01pQjxiJ4SIC6PNwuRrx1RSUF5OYcBkB6qFhBZ/2/3ZoDYXI+yJ7WM+u+9o6E0rU7iBa6e1yl+O4FERmZeXaG5cK0Mo3iNX0hhpxocNng6u9N5TIdoJo5AKUyYYgTgqtQZ+8ZhAr6Q0l6ebE29VujKEe6WXLFQUzuaPAi0bv3c3klgIvVr8PuadgNuaigpncVODF+Hu13hvtZpMYsyGHj4KS9+0aQwImlNiUvWimd8MxQdQ5IWsN2jxgebGe3g1ncHY4qlVP74ZzQDovWumNc0Y04jXTri5AO8jrBbHWnBv2dtCXdUI1vRv2erhMpD5rDUpi3hOuMEA9YiRJmsnYtTf0ebhsRlxjgJtO2Od40UrvBUdbuzEbcijEw/LSkICJr9lyu71opveSY4Koc0JoDdo8YHmxnt5LzuDEd3frQ2tQYtvxopXeCKQQvZfTrjFAk9hrerGW3riWkpsy4RoDfHSYR6yl4RqDbsnHAYJo9d5L8WperH4fvJREO0ZMkpccbUV5mYhVe+8lR1vxLatvZ62hEHvflSEBE9++YlP2opneK44Jos4JoTVo84DlxXp6rziDs1sZTtFBiQcYL1rpveIcEFQ5KbQGffZ6Xqw155V4Oy/aH4lHrN5wjUHX83GAIFrp3YtX82Lt++hlKdmPuMYAxz/YJLxo9d49R1tx3P3bG3I4y07D8mpmSMCEErU7iFZ6Q5umj0Hkjqtce0ObBqwgVtMbasSFFa5uqZ6cQ4kGmCAauQBlcrnIUJqUtQZ98ppBrDRnKEk3J0mVtZNz1CO9bLjGAElYib49aw31iJEkH3YeOzmHvpjIiGsMUF5MYsI1BqiHTWLMhtxKNuRWjSEBE0rcbi+a6d1wTBB1Tshaw34BD1herKd3wxmc2FeoD61BiW3Hi1Z64+MHcUaMKieF1qBPXjOItfResLeDvmwkVdN7wV4PZ5/qN6SgxObtRaP3Xi3Eq3mx+n3wUhJVfXuSjEJiEhOuMUA9bBJjNuQwgedheWlIwMTcntvtRTO9lxwTRJ0TQmvQpuVCEOvpveQMTuQA1ofWVkvOAQmild7YrSZ6Y6OVZxGGnHO0g72eF2vNeSnezov2RxLzNFxjgH3KRD+1krqsNdQjRmK4xgD6PFwuR3w1Bfuj7HO8GN9f7dob9bBJjNmQw34ce9+VIQFz1XNIMIhmevccE0RFE0Jr0OYBy4v19O45gxNL7/rQGpTYdrxo5ULPmY+oclLWGvTZ63mxlt69eDsvmh9JvF5vuMYA0Qg2by9avXcvXs2L1e9DlpL9iK+moN1iEsmJu2p69xxt7cdsyKEQeV9Ycr0pQ4naHUQrvaFN42EQueMq197QpgEriNX0hhpxAQSrz1qDEg0wQTRyAcrkciFOCq1Bn7xeECvNGUrSzROuMUA90suGawwwyiX6aQC2znujHjGSJM1k7Nob+mIiI64xwJAqJjHhGgPUwyYxZkOulw25fmFIwIQSt9uLZnovOCaIOidkrUGbBywv1tN7wRmc/cJwig5KbDtetNIbn42Lk/Me32+bMjmHPnm9INbSGx/5kqbIOqF27Y0fZ/NcGK4x6Bd8HCCIRu8NZTESwzUG0OfhcjHiGgOUF5OYcI0B6mGTGLMh18uGXL80JGBCidvtRTO9lxwTRJ0TQmv9kq8xCGI9vZecwdkvDafooMS240UrvZFfS5xCouskeiMrVaqq3wzAI0k3T7jGAPWIeRquMeiXfBwgiFZ6d7ym7L1YO9x1vJSE/rdDayjEJuHF+Hu1k3PUwyYxZkMOd93ysNwbEjD7nkOCQTTTu+eYICqaEFqDNs8jvVhP754zOPvecIqux5SIuORFK70xEZF6JoXW0CT2ml6sNWe4DWmKPWsN7RDzNFxj0Pd8HCCIVnr3sqb0YvX7kKVkP+Iag77naGsQrfTuOdqK08JjLhZHKRqYoWHIwYQWhwWjbOW4UyeLjjL3X+US3KnTwBXlap47PWIFZMOBOqdFg02UjVx32uSAnTwp0uYqIC8a5Ur7xvlz9n9RNj/YnD0hajLcbeC0xGq8bGS9q0mMxsv174UXma42PZqVnhV1pcREvGzkvqtJTGTMfh2O7rN3hmzI0HRa0nov28m/4Lihq3ZCaptTl0HNywbyLzjTE/UZjts5LbEmL5s5gi9aR/fqap0Uh3MVkI+NcrWR48vLSXNkYVG7WHe/n5is4eYD1MBHCKJsJv8i8YRern8vvARFW0Z8bsWVSkwkOZpeO693NYmJjNnNm+GCB5qGQjbkbzotab2X7eRfclTRVTshOufUaS4aZQP5l5wHiqN4hsN4TkuGIC+byY+Dgcw2HMibsoxHsxJf6eVqI8fBsaQ59kida4uYbGe4FwE18AGDKJvJ3yWe0Mv174UXqK4teogk9/wdR3Gdhkzp6snfcRwXZzdH7PW5UjKE94bsTtTAAcco28nfc8zRVTUhdgd1vighygby95wlijoMR/WclgxBXjaTH/FVZhvimtPIj3hmUll9FM89mIxqXp7wYDKq9YZbE9AWPn4QZTP5+8QTerma/H2ycO1H3J2AFnOMN8rxN+vJ33OUF6elR+wEulI8hCPxvT73cwYtNvAgm8kPdbbwIHM31q75oc6DWpDryQ895gi+rlWfOId3w3koUbZyBDXxwhbypAifawp72yDXGjm0kk5P8jurp/2oKelzw50KeBo+nBBlK/lRU2I0hnsV3O8nJjPiZgVocAQ4ylbyoyYxkTH7hPjMnvhtHGG3GPiCg5Wozcl28i8kXomqJqTUuZbIoOZlA/kXnGGK+gzH/JyWWJOXzeRfcJ6Kq3VawA8VsLcNcjX5cUcNzR1wsCft9Lq7DvEw4itxtEdqQveN+lo+auCjC1E2k3+ReEIv178XWbiiXSMCfiiVmMiEmxfcs8vAM2YXcTaTbUTIhrxRpyWt97Kd/J3EK1HtlIAf1HleGmQD+TvOP8VTGg4BOi0ZgrxsJn/HWSyu1mkBP1Qg3tbL1UaOT30w+b084cESkzXcx4DXwQcbomwmf5d4Qi/XvxdZuCK9Uc/TzNb8KJWYyIR7GfDsEhPG3pTux/Pflk1GrAAMWaVOS1rvZTv5e4lXotopAT+oy7zUywby95ydiqc0HBF0WjIEednMkZ5zXFDrtHsaXAUyQfRytZEjY4LJ72X7g4mvxP6hrGdGe35o8SImyFbyQ5uNJsi17wVaPKxCHhHwQyk2kSDH36xe80Ob53NYJI6YdaAUD+FYShpiP9CS1nvZTH5UlTR/yu0NbiXL89Ig15MfeswRrHEN8RBoiTV52coR1CRWNZ92i4NbsLO3DXK1kc/FR6IGWYVUr/mhnfS54S4HFzRIa0jDxHWp96hJVrBBrn8vsnBFDd9O4HO/mZhIcti+nvxziQmjg0fMOlCKh3B0osXAFxKuRA1phhey8Tp8PwNWO271BnWxcC8zY2sDfqhKBjUvG8i/4MxWBFMMxwvx6JILE2Qz+VvJhUFN0wJ+qEB8pZerjRxXcZLnR232tD73iqTPW8NND6iBj0xE2ez528QTern+vcjCFe0aMfWetxITDrLZ87cSE56P2mZEKfHb+Jxe9Ydc8MFSCVcG2e75O4lXoqopAT+oy6DmZQP5O857xVMaDh86LRmCvGwmfye5MKh1WsAPFYiv9HK1keOLhkx+L9sfLPGVneEeCLxkPlARZTP5u8QTern+vcjCFe0aM/XuJCYMDdnDrff8ncSE56O2GVFKhnCkRBvIj4RktgMv28nfS7xy7mW75+/5Ygh8xzg9CDL60lWnxxxp1g1HE2fQ4iEoyFaOQJudNeRpAT9UwN42yLVGDi3u9CBPeDBegjTrhlsi8JL5uEWUreRHTewJg1z/XmThisuOR0y9USoxkQm3ReDZJSbczMdsMzbJNmODiUo9+aElrfeymfyoSizcy2byoyoe1IJc7/mhJxyZGw4u4ot/kgsTZDNH5pI3imu8pmX4oQIOZgS52sgxY6QRHzXIKqR6zQ/tpM8Nd0jgJcsRjCCbyT8XT4iaZIQdHXyEVmIyI26ScK2XAcfLsfXVnh81ia8atc2I+6JlCG8tKaxNK+HKINvJj1vi2aS8bCd/y5dK4AOV6XmR8Z4fesKR1nCsEb8suTBBNpO/lVwY1DQtww8ViLf1cjX528RHennCgyV9brhhAi9ZjmAE2Uz+VlawjZfr34ssXFHDiIAfSomX8rKZ/K3EhPG5yzGzjmSbEd++NAT8oCWt97Kd/PhSN5Pfy3byd3zlxAwtFLLMK8jfSRYsLtgzxEOaTnJhgmzmCCKn8mqm3TyBF5L4Si9XG3mX+EgvT3iwpM8N90/gaeQIRpDN5O8ST+jl+vciC1e0ZUTAD7eRcPQkyGbyryQmjE/pjNhmRCmedeAWC4OBL3C8k8wyyGbyQ50tPMhm8kOd56VB5qpGbz5Aj2ek+OqtIR4CLZ5XBdnKEWizs4Y8LeCHCtjbBrnWyPER36TTJ9xNgVucxFfi676GDD9oJVaTerzKy+PQFlnBBrn+vcjCFTWMCPihVGIiE26pcK0XExm1zbhIthnxaSmLgc8lXIkaxMfOntZu9UE9af6U2ypmqEoGNS8byD+XLFh8+coQD4GWDEFeNpN/LrkwqHVawA8VsLcNcrWRz8VHooa00yvTe6Etfd4Y7q7ANyPlCEaQrZ4f2mI0Xq5+L40sXPGFsxFTb5QSE/Gy1fOjJvFVo7YZcchchvDWksKKg+bSei/bPX8r8UpUOyXDD+q8GAmygfytZMHiCL0hAQpaYk1eNpO/lVwYnMafFvBDBeIrvVxt5G3iI71sf7DEV7aGmy1wIkWOYATZTP5WVrCoyRDwg5YMq+2Yr+lAIzGRCTdcuPcg87lR24w4LyKzDtzuVB/txykTab2X7eTHTUq8gvAyd2Ntkg+Orsig5mUD+XGxEDdnZTnxiCMvMgR52cyRleTCoNZpAT9UIN7Wy9XkXyU+0ssTHkz6fGW498KdDEprmJDht1glntDL9e8lWbiuRtx+gdZLTDjIZs+/kpgwMrdGzDpQiv02MrUMAT9osYEH2Ux+qPO4GWQz+aHOg1qQ68kPPeYI8tAM8ZB2XXJhgmzlCLR5III8LcMPFfAEMci1Rg6tpNMTH1m91Yeakj433IqBq73kCEaQrZ4f2onRGG7GcG1JTGbE3RjQkJhwkK3kh7aYyHzMNiO2adhvt8hqqff8bSPhyiDbyY98EXK1qCoZu57Wen6oy6DmZQP5kTYhzbGceMQ6SqzJy2byN5I3ilqnBfxQAfvKIFeTvxEfiaXehCO90E763HBnBu7DkyMYQTaTv0k8oZfr34ssXNGWEQE/lEpMZMLdGe49yMAzapuxTbYZW/xjIH8r4UpUMCXgB/Wk+U62e/6WL9HArSDpeZHxW33QE460lhOPeB4ZgrxsJn8ruTCodVrADxWIt/VytZG3iY/08oQHS/rccKMGuleOYATZTP428YRern8vsnCF9YyZercSE4aGTOmqk3ygLb5q1DZjm2wztrjp1kB+HN1h/+hlu+fHjbFJVVMCfngWmZd62eD5ccuqNMdy4rFdSS5MkM0cWUneaLuadtMGLhdKfKWXq418lfhIL9sfLPGVuLfRYoByBKNdpSvX2q0+aCdGY7hzA282WbiuRty64TRk6u3l+Cbryb+SmPBy1DYjSvGsY7luSWGFFrc+yGbyQ51dbZDNnn+Jb2cScYNcT37o8Yx0uW458QgttqYgWzkCbR6IIE8L+KEC9rZBriU/tJJOn3AXxww1JX1uuI0DNcgRjCBbPf9yJivYIFe/F3wKnc1uNuJOjhl+R0zEy1byoyYxkeaB5GR8zOPZm/v3n3/84fOvd3dftm6/3P74w6f7P598er6Gln/+7fbjZ0jfuzHs1y/P15r5UxdGfPP75y/3H/bu3v3iQBT8z2xx++b7t39t3X1+c/cR2PpT7EFl/yzWfvzhjat3w1UMLTcxQcnPwP/4cf2HZ3+4tsQyL6SM+96IU9ssoa0S2i6hnRLaLaG9EtovoZcldFBChyX0qoSOSui4hE5K6LSEzkrovIQuSuinEnpdQpcldFVC1yV0U0IbSf9T324o/b2hdPiG0uMbSpdvKH2+oXT6htLrG0q3byj9vqF0/IbS8xtK128ofb+hdP6G0vsbSvdv5P3/DAxmGruzCEMaz+ZPMcraWIw+iwME+KvUPHV0cLU+X3Mb2Dw4zAaDAxfhsaFAtgIyQxbMjz/8/OTNrRumftzauNj+xxxHxv71an/rH2fbJ4cbm9v/2Nw+PPzH2s/v3t99vP1wt/avjdk//zX7187+0dY/1v7X2r+Kv27++c9/ra25MvN//i0VNajonz88+9kNhPj44WowGG7Ls9AD75TQbgntldB+Cb0soYMSOiyhVyV0VELHBMFvcI/O8x49kTL0hKcldEYQpjtiG4s2r+tcSlFdFyX0Uwm9LqHLEroJULPGY1d88W7Rwq1q8jZtxJ7AEonVYk+4WBCrLQZq3DWd6HHfJBh3ToJx76xEN3aPW7jybw5e30bsL5ThpsbuSaHYPSkUuwcLSTerSIcgzGgeYaBwtT5fS1rwokA2C2QrIG5coMfbLqGdEtotob0S2i+hlyV0UEKHJfSqhI5K6Jiglh/opIROS+iMoCUrnpfQRQn9VEKvS+iyhDbiO0xZEN9hRoyoiYkwWyC9RExpGaO3mGL0GlOM32OfECH+Bua1XB+9yRSjV5li9C5TjF4mdpa5vvg2PeUzOmAgLOgwX/8bJtau4oHrXA5cJxdh11kgWwWyXSA7BbJbIHsB8bc6JcP1oEX7Uoqa9LKEDkrosIReldBRCZ1FKBkDu/wtvQ4lxP4u48Nx514NgeshsBFfSGbsoVBm7AFKzCY+feJg4sMnSHz2BImPngza8TGT0f+cHnw4PsOfluPz4qmLdU5b6bmKMUS7LVe2gNXAIqUMm2QJbZXQdgntlNBuCe2V0H4JvSyhgxK6DJCMIldD4HoIbMQmZYYRCmWGEaDUMGKhZAQskMMCeRWQZOw7C0hqGPHBCseNecLjGIar2BmGWPCLEtosoa0S2i6hnRLaLaG9EtovoZcldFBChwFCimVi6X1u6a+kDFn6EdUEdyRD5GD6fyyFSO9E+7nZYJl0Wv7eWQmdq00YzM8vyib8pDZhMO99Xf7eJVWFyEDiFfJXdSWF6JGvAyRMu4l1rwsfNkoomhXOdLNfjmaVQtGsUiiaVQpFs0qhaFYZl0MjMi7HdvmZcYiBRbPCRpnMZ2KpBCKzSiCyomTsj1aUtivaTAqRzSRvgiwkgdhCknlM7IxidEDItxwdGreVPs1ruHrd4JByaTZYprygQjJAbpbQVgltl9BOCe2W0F4J7RMkbvdlhNy+qZj3YM5zUFZ1WEKvSuiohI5L6KSETkvorITOS+iCnkdM8KcSel1ClyV0VULXJXRTQhsbCkYWkFKITCDFyAZSjIwgxcgKUozMIMXIDtzsSHp4MIPcINNAKVnE0FOkixgFI1vIf2Ewb9og80h/gewjxchAUowsJMXIRFKMbCTFyEiK4QARxUcZDly9bjiQCcsLgmRWs1lCWyW0XUI7JbRbQnsltB+hZIx9SZAMzgel4mEJvSqhoxI6LqGTEjotobMSOi+hC2q9rHt+KqHXJXRZQlcldF1CNyW0saFg1N9I4BAvrpSjHk/LUZenGPV5ilGnpxj1OpI1+Xe529OZObUlwajjU13q+RSjrk8x6vsUo85PMer9FKPuTzHq/xQjAyho7D5/U/J4+RRruInbfq5ihOHdiQYZOAeT5Bf+50F3pLXyelDBthjDu5ew8jByTqWQiUq17SjYblIbldtTsH3Wlancy4glY+QBF0sXvvPB/PyQS8lw8UrBjhTsWMFOFOxUwc4U7FzBLujBkI5CL+UnBXutYJcKdqVg1wp2o2DYNIzWkzQGu4YKuKmBZC44UCNU3tZKknlkJck+MpANBAYtwwO/yDR6qYFiJElJsYlkjiBGkYBiFWkIk38oAcUuElAMIwHFMhKQTaMcKdzmbrG1+HeMFGHXeI50dnqxL9yEGqMH0l5kWCigrVgK50ao1HYJ7ZTQbgntldB+hHAynqp/GaFkaD2IEL7Ong5NgyX1IZeSge6Vgh0p2LGCnSjYqYKdKdi5gl3Qg+Ecr7A/bucn2Gul3KWCXSnYtYLdKBjYX/4w2K+AmxpIZjFL2o20AUWdTCMrScaRgWQe7gLDhP3RclOQTCQrKUaSsZ/Uk1FKjCLdyOMeS0AxiwQUu0hAMYwEFMtIQ4P0QyX71cSCv4P9rmI3A0jZH7CM/QW05dKOoZmxv4B2ylK7JbRXQvsRytgfqs/YH5ufs38QGDuMdblbU8h6XinYkYIdK9iJgp0q2JmCnSvYRcRSk/9JwV4r2KWCXSnYtYLdKBjYH99ySt8XGripgWQWA/YrdZJpDNivlCTzGLCfuj7z/Qp4wK88Yz+VzNivgGIVGfuVkmIXGfuVkmIZGftjyZL9Lg3iUXx/yK/I2R+wjP0FtOVOCgzZX0A7ZandEtorof0IZeyP6SGy7DuIpQa+f5DXccilUvbHB09GhCOl3LGCnSjYqYKdKdi5gl1ELGd/fNjM95fYpaJ7pWDXCnajYGB/+SPw/Qq4qYFkFgP2K+pkGgP2KyXJPAbspw7M2K+AYiQZ+6lkxn4FFKvI2K+UFLvI2K+UFMvI2B9Llux36ROPwv6Ql5GzP2AZ+wtoyx3uGbK/gHbKUrsltFdC+xHK2B9zSFL2x+bnvn+wdXEY68p9P2nKiHCklDtWsBMFO1WwMwU7V7CLiOXsjw+bsb/ELhXdKwW7VrAbBQP7yx8B+xVwUwPJLAbsV9TJNAbsV0qSeQzYTx2YsV8BD/iVZ+ynkhn7FVCsImO/UlLsImO/UlIsI2N/LFmy3+WRPAr7Y4JKNvMPWMb+AtpyWyVD9hfQTllqt4T2Smg/Qhn7Q/XZzD82P2f/YO/vMNaVs580U/aX2LGie6Jgpwp2pmDnCnYRsZz98WEz9pfYpaJ7pWDXCnajYGB/+SNgvwJuaiCZxYD9ijqZxoD9SkkyjwH7qbMy9ivgAb/yjP1UMmO/Ah6xesZ+paTYRcZ+paRYRsb+WLJkv0sWehT2xyykjP0xVymN+hXQlvuYxpD9BbRTltotob0S2o9Qxv5Qfcb+2Pyc/YN94cNYV85+0kzZX2LHiu6Jgp0q2JmCnSvYRcRy9seHzdhfYpeK7pWCXSvYjYKB/eWPgP0KuKmBZBYD9ivqZBoD9islyTwG7KfOytivgAf8yjP2U8mM/Qp4xOoZ+5WSYhcZ+5WSYhkZ+2PJkv0uGehR2B+zjDL2Byzz/QW05T6AE9ifbAQOsiW2pZDsA7IeQbtlqb0S2o9QNh7E3K10LRAfKB8PBtudh7GufDwgzXQ8KLFjRfdEwU4V7EzBzhXsImL5eBAfNhsPSuxS0b1SsGsFu1EwjAflj2A8UMBNDSRDGYwHivqOpk7GkamTeQzGA+qsbDxQwAN+5dl4QCWz8UABj1g9Gw+UkmIX2XiglBTLyMaDWLIcD1z+0qOMB5QYJc144T5vNdwDLKCtWCrbBQilEminLLVbQnsltB+hjP2heozONJIcxFJ5HLAZpCcccqk0DhgfPIsDltixonuiYKcKdqZg5wp2EbGc/fFhM/aX2KWie6Vg1wp2o2Bgf/kjYL8CbmogmcWA/Yo6mcZgNqCUJPMYsJ86K2O/AoqRZOynkhn7FfCIeyxjv1JS7CJjv1JSLCNjfyxZst8lPj0K+ymjKmV/wLLZQAFtuS/YDdcCBbRTltotob0S2o9Qxv5Qfcb+2PzM9zdF/g+VStlfYkfxN9M5wrGCnSjYqYKdKdi5gl1ELGd/fNiM/SV2qeheKdi1gt0oGNhf/gjYr4CbGkhmMWC/ok6mMWC/UpLMY8B+6sCM/Qp4wK88Yz+VzNivgGIVGfuVkmIXGfuVkmIZGftjyYL97vOOj8J+X/EgAyBiKftLaCtCqe8voZ0S2i2hvRLaj1DK/gil7Kfm5+wf5v9wqYT9CnakYMcKdqJgpwp2pmDnCnZBD5bm/yjYawW7VLArBbtWsBsF29jQwBcauKmBZBY5+7WSZBo5+7WSZB45+/lFpuzXwAMNPGQwZb8GilWk7NdKil2k7NdKimWk7KeSJfsfK/vPffd1mP8TsYz9ZfZfLJWxP5RKZ/5lqd0S2iuh/Qhl7I85ZMnMn5qfs3+Y/8OlUvZT9ley7lfKHSvYiYKdKtiZgp0r2EXEMt+vYK8V7FLBrhTsWsFuFAzs17L/NHBTA7c0cFsDdzSQjCNf9/M7S4hOBpINCS+1kgcaeMhgxn4lJfBIKylmkaiLXWTsV+oUy8jYH0uW7HeJQY8x83f38RXsD1jG/gLaipoZ+0OpjP0FtFsq7pXQfoQy9sfMsJT9lFqFAKp8DWaY/0MPmWb/KdiRgh0r2ImCnSrYmYKdK9hFxHL2l2lwr5Vylwp2pWDXCnajYGB/+cMbLzRwUwPJLAa+X6lzR1Mn4xiwn3o5Y78CvuS3m5Q80MBDBjP2K5l6YhWZ71dKil1k7FdKimVk7I8lS/a7xKBHYX/MOEJogzP/3T0pg6hfCW1FKGN/UMzYX0C7peJeCe1HKGN/zAxL2U+pVRn7h/k/sa4s5q9gRwp2rGAnCnaqYGcKdq5gFxHL2V+mwb1Wyl0q2JWCXSvYjYKB/Ur+3QsN3NRAMosB+5U6dzR1Mo4B+5WcPjKQge9XSh7wK0/X/Qxm7Ney/7SSYhaZ71fUxTCSkmIZGfsfyv5zB/geh/0x4yhjf8Ay319AW75JeeZ/Ce2U0G4J7ZXQfoQy9sfMsJT9lFqVsX+Y/xPrytlPmunMv8SOFd0TBTtVsDMFO1ewi4jl7C/T4F4r5S4V7ErBrhXsRsHA/vKH4fsVcFMDySwG7FfUyTQG636lJJnHYN1PnZWt+xXwgF95xn4qmbFfAY9YPfP9Skmxi8z3KyXFMjL2x5Kl73eJQY/i+2PGUcb+gGXsL6At90niYQZAM8i82ZZCnAFQQrsltFdC+xHKxoOYKyYMPoilBnuAg8yEQy6VRgIoTSsdD0rsWNE9UbBTBTtTsHMFu4hYPh6UiXGvlXKXCnalYNcKdqNgGA/KH8Z4oICbGkiGMhgPFPUdTZ2MYzAboH7J1gIK+JLfbrYWUEqKTWTjAZVMwCOuMxsPlJJiF9l4oJQUy8jGg1iyHA9cqtCjjAcxBykbDwKWjQcFtOVCb4M9wBLaKaHdEtorof0IZeyPuWIp+ynZKpsNDPN/Yl35bIA0U/aX2LGie6Jgpwp2pmDnCnYRsZz98WHTPUCl3KWCXSnYtYLdKBjYX/4w2K+AmxpIZjFgv6JOpjGYDSglyTwGswHqrGw2oIAH/Mqz2QCVzNivgEesnrFfKSl2kbFfKSmWkbE/lizZ7xKDHoX9MeMoY3/AMvYX0Jb7uvGQ/QW0U5baLaG9EtqPUMb+mEOWsp9Sq1L2L4b5P7GunP2kmbK/xI4V3RMFO1WwMwU7V7CLiOXsjw+bsb/ELhXdKwW7VrAbBQP7yx8B+xVwUwPJLAbsV9TJNAbsV0qSeQzYT52VsV8BD/iVZ+ynkhn7FfCI1TP2KyXFLjL2KyXFMjL2x5Il+11i0KOwP2YcuRQn+Tr68B4Ad5VWzvTNEtoSKKlqsBu/XertlNBuCe2V0H6EshEiZo+l0QJKv8pGiGKfkEqlq4MSO4q/meUIKdiJgp0q2JmCnSvYRcTyEaJMlXutlLtUsCsFu1awGwXDCFH+MEYIBSQzyShOhjIYIRR1Mo3BCKGUJPMYjBDUgdkIoYAH/MqzEYJKZiOEAopVZCOEUlLsIhshlJJiGdkIEUuWI4RLHnqUESJmJeHaBdkpCFgS8N90d+TlQ8RWCW2X0E4J7ZbQXgntRyhjf8weS9lP6VcZ+4t9QiqVsr/EjuJv5uwvy50o5U4V7EzBzhXsImI5++PDZvODErtUdK8U7FrBbhQM7C9/BOxXQDKKAfuVkmQYWUkyjQH7FXUyjwH7qWMy9ivgAb/yjP1UMmO/AopVZOxXSopdZOxXSoplZOyPJQv2u1spH4X9vmJkCKbsj1jK/hLaKqHtEtopod0S2iuh/Qil7I9QmiFIzXfrN5neDPcJuVTCfgU7UrBjBTtRsFMFO1OwcwW7oAdLMwQV7LWCXSrYlYJdK9iNgm1saOALDdzUQDKL3PdrJck0cvZrJck8cvbzi0zZr4EHGnjIYMp+DRSrSNmvlRS7SNmvlRTL8CWzS03c/bGPQ/WYgpRRvcjq2/S/n+0AbpXQdgntlNBuCe2V0H6EMqqX6YCxVL4JsBhuCnKplOpKOqBS7ljBThTsVMHOFOxcwS4iljl6BXutYJcKdqVg1wp2o2CgupYOqIFkFLmj10qSYeSOXitJxpGVJPMYUJ06MKO6Ah7wK08dPYMZ1bV0QK2kmEWiLnaRUV1LB8zrzKnu0oIeY07vbpB2uX8Z1Yt8vc1YLHH0WyW0XUI7JbRbQnsltB+hjOpl7h81P/fqwy8AcKmU6pSSlcT8lHLHCnaiYKcKdqZg5wp2EbGc6krun1LuUsGuFOxawW4UDFTXcv80kIxiQHVFnQxjQHWlJBnHgOpa7h+/yIzqSskDreQhgxnVtdw/raSYRUZ1RV0MIykplqF49SzRDykB/r7fv+Ejn+62REd1t8SRGfDwbqhYKg34l9BWhDAeJFUNNtq2pRBv/5fQbgntldB+hLLhoEwG5EdMJ/ntcAuAS6XDAb2cdDgosWNF90TBThXsTMHOFewiYvlwoCQDKuUuFexKwa4V7EbBMBxoyYAauKmBZCiDSb6WDKipk3EMhgMtGZBfZDYcaMmAWslDBrPhQEsG1EqKWWTDgZYMqKmLZSjDgUsKYs//dw4HMdMKN8VxNK8JWEb+AtqSUsmVpoONgu2yqp0S2i2hvRLaj9AcIzF/BDxi2RKfMq0y9g8PAVJl2MrhzwAr2JGCHSvYiYKdKtiZgp0r2AU9WLbEL7PiXivlLhXsSsGuFexGwcB+JR3vhQZuaiBZyoD9Sp1kG4MlvlKS7GMw76euz9ivgAf8yrN5v5Kj94pLJpwWq8iW+Iq62EU271dKimUo7HcpQI/C/piBldz4+qIJWMb+AtoqS22X0E4J7ZbQXgntRyjnemxsEsynYtnEvx1u5XGplOuUf5V6+hI7VnRPFOxUwc4U7FzBLiKWe/oyN+61Uu5Swa4U7FrBbhQMXC9/eINsIuPlplaS7GLAdaVOso0B15WSZB8DrlNnZVxXwAN+5RnXlfy7V1wy47pSUswi8/RKSTGMbOKflczX+C7h51G4HrOoMk9PmOzlbTYx4whxSPKMW4xh4JL7ywebZtuxVJtc+VNCuyW0V0L7EVqlvj42Vl7kQSzlbodJ2lWE86NicgXNq0STnvJIwY4V7ETBThXsTMHOFeyCsMzXxzanm3lKuUsFu1KwawW7UTDwv/xh8F8ByVAGC3+lJBnGYOGvlCTjGMz0o0UiBV8u/IhNyo/9aCAZSVbykEtmM336oYz/CkhmMUeaADeJ7CIDyTAykCwjgjn/XcrPo/A/5lFl/Ccs5X/MOcr4T+Xk3r/tJmK4+UgW9iW2q5TbU7D9iM0xCMv0PtaXunxJB0soX4T1pZRM70vsiBqS0OxYwU4U7FTBzhTsXMEuFOwnBXutYJcKdqVg1wp2o2CgfPliQHkF3NTALQ1k60he7MaOVpLtIy1JBjJw+ZQ3l7l8BTyIPzSgPJXMKK+AZBUZZ8ksBpRX1MkwBpTPSuaUdzk8j0L5mBiVUZ6wlPIxiSijfMQWaLe4/OHZnoZKyTvdUbBdBdtTsH3GZKB5GbFsjS8ZX0njhgd8SDGxrFcKdqRgxwp2omCnCnamYOcKdqFgPynYawW7VLArBbtWsBsFwyCgJNG90MBNDdzSwG0NJPMYzPuVX2cDaZPru9lC0uGCTGSeggfx1+dtcmP3IYGp4yajyAhLVvH/aTu3praRJY5/FYr3TSz5IluVUCV8vxsbMPDmTUxCbYIpx9k9Zz/96bbVMz3Tf84+LHmDX899/tMajdpS5ARQCB8qU4QROYEge+gEOJTnlziBMj4quMcXpl7vXS1jiej5o9/3l0xt6btluqTm8/YA6wM2AGzomL/Ij4R5LzAWVKdbJ++P4l/1qFT+ui8BYr7BM5BuDtgCsCvAloCtALsG7AawW8DWgN0Bdg/YA2C05O3A0HUfwDaCHQSdOmia3MbYyUNDpw8NRSBpPdjqiwpVmSKRVGcXkaR19T3gSdnOtO6PeoopgqKKIKXIIoCiiwCKMAIoyihhsORrQZCeHOqn76i7/+6Dv8eC+cvd9CTSrZVG9ADsUqWSqWoD1gGsC1gPsD5gA8CGgI0AGwM2AWwK2Cxk4UwEMVRvORNlhIfegdUsawPWAawLWA+wPmADwIaAjQAbAzYBbArYLGThuAcBLTLuzXcZOfl/uQQkokU/BWrEv2Op+VR+CZQsyBg9PupIRu9Suhb1LOpbNLBoaNHINVX91s0x/Sy/ER9/q1TumgjYDLA5YAvArgBbArYC7BqwG8BuAVsDdgfYPWAPwsgvuEtV4SAtUu86o5PO4tIl8+eTRRtBpxQyulqcVjR0aqmp/arTCy8i357ohLNwGtIFOhXpAkVHxFR50fFJMS67QrW6Rk+EqY5MhQWlRTeJhShLlybK0g0WZYV9je7qCtGaLs1prW4fnnFP7cb6TXxM+WSfzhJllC6PtXEknWdtx/xNcqdkiTo96wLWA6wP2ACwIWAjx/zMjksWhPE04p21T+SdyKn/KhxwZlPNUelZtBdZ2HxXFi0tWsHSIzd/bfPdWHRr0RqWHl0L7my+e4seLCqKkqU1tdt1ClL3V+RaSqlpKBpKNRQRBVBUlNbUvlhkxLV7V5BFVw9yLaBqkVZQoGgrrevLkSlQ5JY2lN+dSC0N5XGmAv9/gSK6oECRXaoLFJlFLYy9u0gvKFDElzaAi+Hn+ebe/U1cTBkpELgYy9o8hxTVV6XPG7ubd8f89aQLWA+wPmADwIaAjUrW8k0Zlyht+Bv6ibDMy2AK2AywuWNeLQvHfL1XgC0BWyl28eHPi/hzIdcgzw1gt4Cto7Kbse+7A5nuAXsAjFxIGRyjRpZ2JyVUQ0suBMAOgiKSRGcXlSSZWqAik4RqVy7E7k5A1SKdoEDRzj8UKHoKWiiCCgoURf1DgSKyoEBRWVCgyIwLdFsj0VmQ3QvtuP7C+x5+/m8cxlvc+ZeBBa1gQqLt3SVdMI4xwJTK3/ZY1gHpuoD1AOsDNgBsCNgIsDFgE8CmgM0Am5fMX3kXhlwZsjRkZci1ITeG3BqyNuTOkHtDHgwhj3CayGBLYVDbppLZVhllshWSuVZIplohmWl9imdrlHlWqWSadaiOzSiTrFLJHCtkp7iwc0y3E2ZwglkO1y0MznmLdVsGGagVeUmbNbtKLeuAdF3AeoD1ARsANgRsBNgYsAlgU8BmgM1LplfpaQQ8uTJploasDLk25MaQW0PWhtwZcm/IgyG0SuNu0FXboLZFMtvBKjUZZa6DVWpSyUwHq9SkknkOVqlJJbOsUskkB6vUZLRTTKvUpLKTXASzHK5SftT+a7bjp4f41Qqd3LvTmCw677jkR+a8Ga/4rVIbsA5gXcB6jvmdbV9Yos+FsuisZFCmOp2KfDrbfzwfWjSyaGzRxKKpIB0ikEUHBzObb27RwqKrEjX97csSVdiMzhJWtqhri24surVoDSuMjhfubL57ix4sIi9wUoqaH3IDlol6dDpRj2aiHs1EPZqJetTQ0n1+Wa+ezGZ01lEA+RRAP3SAaHshCtK1OgnpAM5mfAYBNFQAEZHjsLWKjHT/nY6O+9/Qd8BYnDe5lT89+69W1HtzOG6VX5LjXWTboo5FXYt6Jaqq5/z9kqUt7SWa0XnHQArz7mpo0ciisUUTi6auEek531w3I3c5c3Y/MHPAFoBdOeZHcBnVlzQq0f3PCpR0DdgNYLegxrVKxz2kiJNGJRrkO1DWPWAPgJGfKONGWurRwCWCIp9UpxQBBVAkFEARUQC9ioIdvjSpfpzVyrtWfFAvIkpb6tRRZBRAEVIARUppSz+3d53Wj+ea8YmD15Sq2otKQa8qBb2sFPS6AgeAMHjnTbzGKfahWvGxD5c1YfoZg2UdkK4LWM8xP9D9kqUNHULQjBbSwKXyuhwCNgJsDNjEMa+0qWMnoTWihTVzdj8ac8AWgF055nu+jOqjJzSRsFegpGvAbgC7BTWu4xozukZETvIOlHUP2ANg5D7KAJqGkrOoKNWwjVKKjoKUIqQAipIC6KWk1rFTTlYT9xE/NXRComAAd9LmlKShk5KGTkuZ6rQTE1XrynQK0tmdhDR0GtLQiUhDp6Ls2Olgi0HBdL/o9uRYMt94+AeNl46psz7AOoB1AesJUw8u+yVLs2AXF03owKXyLRkCNgJsDNhEWFM9QHDM72VmjvnbpzlgC8CuHFM3IY6xdB8v6LrwG033h/ePfO2vxZfBlUvuZXwN2A1gt455Da+j6mnz8Rt5kLL6ZqXeiF0HKPgesAfAigJB0VSqfiNatFFKUVWQUmQVQNFVAJ2wmmoNOx01lT9xQmqq4H6nJA2dlDT0WlKn+lPXI1WRV5OqyMtJ/xzIZVfQC0r/HFBSto5KDp0FjEx7i50FRVUfjxf96rm0qG1Rx6KuRT2L+hYNLBpaNLJobNHEoqkg7Q3Kbns0t6kWFl1ZtLRoZdG1RTcW3Vq0tujOonuLHiyihWz6Xbj5Vo/03IQr5mZcMTflirk5148IQb1u1lUkkZt2xdy8K+YmXjE38zoySepVbAaYm3yVzs2+Ym76FXPzf2SnZfv+x9ft9tDZHDYXH75v91+27e23bz/OPu1+PtOBYUJ7BMXP9tvHj+d89JIXfDpCWxKXp7TRAUlOR53IRvdlOd8kwVwtznV0ZlGJ5FNzdnc2F/m7nP2TtSzJwtcia6GrUV6wmwaNIEdN3cI2rqugYlEzqFt8AwaaQRa+/wbNIEvB96moGWx7dZzIxjd2Nh9tW2l00QjSJpIaiCw04tRAZKErNDcQmWj6yYarKuj5dU5HXcfdaiwNehTNjYe2Wj3n5ylgOEhPfK1FHc6ow0horEE+RkOlVaie43KPW1dLc45DsHkoTDLnUCFroajDnKMyQT0Ul5kXHMYEbBQjmdPBJMxHAYo8ftBG4YY8fshGMUrUL1QbxRXlHApk20GhaDT5yEJhZNSvV9pe5bZDGw0S6wLaKDSK+wVtFOXE/UI2ciTURjSTdNLNAkUm+m1Xzr/SARNGloJ/24eWHdv4N1jARkGo3DM08hSmQupAuqGgD5oTZKH1QXOCLBTYQ/1FFgrLoTmBa4dialhr0EYRLzxf0EbN5l5BW7Wa849o7FjQq7FocOFqIAsNLpxiejcaDy600UusaPqhjd7EQ5Ud70Oi5UovxOHKYNvpXTtcGbRN2MavrgGzTL+1YxtSAP1Qh6vD7pBt/EseWCRf117RYp2LRJ0r6A0iXCS0TdjGr2pBc9Og4UJLgt4pwJVBB0tvs+DKoI1eO8CVIRv9ZpmLhF6Wfg7NRULbhG38u3M0XCnbTq+4iv1z2iRFohVIX2OgXkOvSJaCP8WBljvb+KsJsBksBGijF7Byr+EVhN7tyr2Gtgnb+CW6yCmRc+E3SEKnRDZ+EyTUFl8OXuk4y5XemAg7znLFtknKcoU2esk0txJvnNjGb6GGreSNE7TRFy65lXgNs40/gQmnh9cwtNF3+3L+7hIYZbJQZXi5sY0/wggr4+UGbfRNLi4SLY5OklE74FWBLEU/wcuGbWNsm7BtCW3jhGV++vxVvGoGbKMEsGtsW0LbOGEBJVhAbKMEuEgW0Cv5eLj4O2ZwlNnPQBt9+4hHGQ8Y2/jjSGi+eVXRp9LhEuBVhW30dXVuCXYnfIGjryrDIvkCh22TlC9w0DZOeVWleFWxjRLg8eJVBW3jlD1Uij0U2ygBLpI91Cu2hBdBAi/ECS+C07sOrPh4xrFtwvmW0DZOeJwTPM5sowRYfDzO0DZO2NUk2NWwjRLgItnVQNs44XGmcBakBrZRAlwkjzO0jRPW7Ckk3o4laxbbJpxvCW3rLL+DS4eumWgFj9iV4GXPjgQvenYj0JJUcv7Emh2hDlmGr0w+r4jTYb0dA14R2DahEmkM4Gpp5GPUiEmWTxGfZfkc8UWWLxFfZfk14jd07wJdE6+mPlxNxYBtY2w76gZJivbqSL0dvicE6edVujsGfFnN1/gmgtbVAKpoSJYpzDM73tOh1tbzPnIkAzoBOPL3/hjq4sPL193z9vD0abE/e9w9H4af6UyKQtn++7L9eP68a++e/9zufzztnrmil/3T82H+cqB/f5x93e2f/qYcm2/t7fNhu98ec3KqzZftdLP/8kSJvm0f6ZCr8q6eJE16bko/gkvTSi0j73+2f/rCb7CGtsPuhS1ZrVmpJrUWxWukrVZKjufs993hsPvOxmq9Vq1Wskqz0UhqScav7/q63XzeUkgbGVvVrFLJmlmtktSpGMr5uNtRK49GVST98Kd5HF5u9Wp7+Ply9rJ52e5XT3/TAPBT0k+bb/wXPciiDlNPN9z9j+cvu/1hv3k6UEfyJ+r6fvj56I32u78u99vNH/6E7/zs++b55+bbEbfLYz869Pt9/8cZ5+Sz/u+b/3w85x83UVKeABpGPj08lUR//7Xb/3E8R7z4HwAAAP//AwBQSwMEFAAGAAgAAAAhAP5PwffqQAAAe6gBABgAAAB4bC93b3Jrc2hlZXRzL3NoZWV0Mi54bWy8fVtvHEey5vsC+x8EPnkAW+qu6uqqNmwftHi/i3eRwD5wJNoSRhK9Em2Pd7H/fb+8RURVJKXK6OExZsYxHzOisyrjkhkZWfnTf/3744dnf959/vL+/tPPa9Pnk7Vnd5/e3L99/+m3n9cuzrd+6NaefXm4/fT29sP9p7uf1/6++7L2X7/8z//x01/3n//15d3d3cMzSPj05ee1dw8Pv//44sWXN+/uPt5+eX7/+90n/OXX+88fbx/wfz//9uLL75/vbt96po8fXlSTyfzFx9v3n9aChB8/j5Fx/+uv79/cbdy/+ePj3aeHIOTz3YfbB/T/y7v3v39J0j6+GSPu4+3nf/3x+w9v7j/+DhH/fP/h/cPfXujas49vftz97dP959t/fsBz/3s6u33z7N+f8Z8K/63Tz3hc/dLH928+33+5//XhOSS/CH3Wj794sXhx+4Yk6ecfJWY6e/H57s/3bgBZVGXr0rQhWRULq43C5iTMva7PP/7x/u3Pa//35WS6mM7a6oe6na3/MJttNT8sqrr+Ybm+3m0tZ1vrVVP9v7VffvJ68urzLz/9fvvb3dndw8Xvrz4/+/X9w/n9KwDQ1bUXv/z0glq9fQ+FcC/h2ee7X39eW05/XL6u566Nb3L5/u6vL4J+9uXd/V/bn9+/PXj/6Q7aC713yM0dxs3/v4fbf57dfbh783CHTk/DX6/evX+4O/v99g1+Hgx/QubPa657L6HY/3rlhuHur7Vn/+f+/uPZm9sPd2fOPg5u/77/48H9PuRMwOYs55/39/9y0C6ET9zD+p9yvb998/D+z7v1uw8f8BBnM/zw/w4PBJoe2LGmh5dPtuWtDe/p7d2vt398eFi//3D1/u3Du5/XMJwRO73/a+fu/W/vHtCd9vl8Iv/Bc3qF/vHt3xt3X97AwtC9503TazTxHXlz/wHvE//77ON75zlgMLf/xr/xQ3/RT355+NsZD7A3f3x5uP8YO+OHjlmhHYEXROSdPl9UTdtNq8a5nzFC8KaCEBCpA89nhULwa0EICBIyugvzyF3BZxa+g2qReEHQO2ink0Xdjv39Grrle19jMHK//+7927d3Yay+Mhw1RiuIKR/KOg2lI6yPkUZyxjLQk1FaMCNeqQVV0WucJSVwRHqGyfP5bDIX2ohX/JV3OEuqMJ3xWEyVkG/YxSyNRDVpsyMKf0BWVE2gdX7cqinr0NgXV1VJeTxltcKqSn7AU1Y7rCp6ckcVW2JVJT2samHJI5WoQtiIb9JRRjWuaoxZGI+a/YELM+TOxtljVZNvcFSpY5nRwDrK+jBOjcPDNCxltHI1zC1c0/Myu8S0gPpQ7pmqhlSiyatEz5gaUgFHxbc2fz5pJ/X4mITgE3s8m+d9mfzN2Zycl3P5heM8a1OPPWU14FlLXXaU1YBnbXJGnio24FmbdH62eCSYfc37LpKmzBxl1PnZImnMbMHRxGDAswVFFEeVDuyCBtZR5odJ49pMWMpYA25c/PHm7ykazjIDbihCearwPTSTpBLNNK8S0pgaNw8NPRYz0lIDbqZJBdpHYqr8zZZiaPvYDOwrStvSvMtTVgNuaQrmKasBt3VyRp4qNuDWxV3//ttZfu7ytelTO0vuw1NGnW9nSWNaEbQMBtxS/PJUoeK2FLc8ZX0Yil/tvDz6tS7+hOGQkagwArcUoTxV+h7mpBLzb09n2zmpgKPib5UacDtPKrB4JKZKA15QDF105Uq76FKPPWU14EVHXXaU1YAXizTv81SxAS9c3A1r4cmkfCGGRActyD1pVHvIoTU58oX0PgxWDFEpigWyUH/BlAY4kPZHSiM8nUzLUwVgEvxSRcrC8XRC8SqQxe+DFnvg//b8Fo1YJRxptGnIIZWoHgm00qqnFUXWaWXIKYCJ+u1Jq2VDEHdcJBeq4jRVxfkFTxZbN7pCtlA15avKaTVP7iWQVluo5pw4FHHNYt4VxTh0yeCxKopu4Gf1nD4vy8KBmUe5FWmosYnMykWqmEuVQaswWE8rimaBLDXvipaC4M+rSN/MOlYJR1rNu+pIJWaPhOHe784o7k5nC4MqI7md3rcnzebdTKjjnrSG7mkzSYuXQJabd+NCdsxkT8vXnNNmSglMT1rNu5mSm2lEqLOYd8NRz5Ol6txwtPOk+ZE46jUu417cDxey4tDI6FVq3g1HNU+W94NV5JEkac/MGsqKTj1pNe+G8qLT9pFo3PvdlqNv+0jm7qubSy2l8qaeNJt3S9k8CFohNwZumkd6sty8Wxeygw61bXl+bNq25GA8abWFtiUdakWos5h3y1HPk6Xq3HK086T9kchjtV15pmzaupAVh0ZGr1LzbjmqebL4fdAycto+kkLtmxnlTNGeEwylC24wk0osHonG/V0rir7V5JG83tfMG0y8SSYyfcX7xxBEGwSetEZvCErLhUAWmzfY0gywmlTliQgw0VagJ422ADm08zQRoc6yh4Vtk7R548lCda4mFO0CaX4kSo9WE7e9WtwPF7LCRthERq/SvawJRTX0o3yRACZWkUcSrH0zo4wqWO35NDCTSlRj9tEq3kirHsn6fdW8K0oDVp60Rm9wc8cdaTbvqqUNVU+Wm3flQnbQoaorX6hWVUcOxpNWW6g60qFKhDqLeVcU9dA7g8eqKNqBn9WzdO0NZh7lhaEKp3IhKw6NjF6l5l1zVPNkqZupaSlZ1Y9kX3vmXVO2Fe3tqTUwk0qM2WWreJsNu/MGVW4oJQh+mXMprP4CN3fckWbzbire+XdkuXk3LmTHWglLwUbDFRuetJp3I2o2RKizmHfDUc+TperccLTzpP2ReJQbQ9RsXMiKQyOjV3EliigPEfUh4+thaCmJIPrt1BqCKMUcT8b3V16PQtlWJAe/vQeHRjSRbB9JAX41ereUEqw8aY7eqARNA+dJs3m3HS0XPFlu3q0L2UGHWkM5B1Kp5GA8abWFdkFuphWhzmLeLUc9T5aad8fRzpPWR+o46nXT8tQaEsekJZ6kwS0sNEPZcRpiTxa/D15Kdo9kX3vRu6NsKx5hhXKzjrKt9ZgNOTRKE0lMMsqzxGBKqhxIq3mDO+lyIK3mDe7ksAJZbN5gSzNAzIXKU2tgSroTSKMtgDm5GZArlZ+BP0W9QBaqM5h4mEW0K52cQw6P8rw8tVZPXMjynjeQRvMGMyuJqC0ZG73BzyrySPZVmnc9oWxrII3RG8ykEmM25OqKom9dGaoowUSq7EmzeVeUE4RMsUoo3fcGNzksT5abd0W1mDXeZ3H+B0ykO560mndN1Yx1LUKdIXqDP0W9QJaaNwqak1l50vxIFPXqWlbtj9z3BhOptyet5l1zVPNk8fugpSS69O1JMhqxSoiTP6WTc8ght9KM2JCreUOubgw1lmCifnvSbN4N5QQhc4XUWo1zZkkTPVlu3g1VataNoQYETORgPGm1hYZqQCBypao18FPU82SpOjcc7TxpfyRWT1fdX9wPKumvG7mWLFx71w1HNU8W94OWkhD17ao1NGKVcKQ1ejeUba3HbMihEbnlzlCAWXeUEgyk2bw7yglC0AqpNXDTPNKT5ebdUQVn3RkOudUd1YAE0moLHdWAQA7vIlmid8dRz5Ol6txxtPOk/ZFokdC52v/iflDBf93J6FVq3h2vKT1Z3g9yl90j2dfe5LyjbGvtSat5d5RtnU1GbMihUYq+s4mhABOHUVOsDKTVvMGdpo+BJKssPDvtjsfG6B3IYvMGW5oBziaWI3ATPgPnSaMt4MeTDoHkUGcwb/CnqBnIQnWeTSjaBdL8SBT1ZhN3MqC4H3QcAPz2M5xgZiURZSZj197gZxV5JPvaO1M54dNznjSaN36XVGLMhtyMN+RmtaEAE0x06s+TZvOuKScImWI1U7r2Bjc5LE+Wm3dNFZwzrFTLdRArpORgPGm1hZpqQNCPlVJr4E9RM5ClZlVTtAP/Cqc7a0qgzmp3NqC4H3QcAPxSSwo/nVBzVPNkeT/IXdaPZF975l1TtnXmSat5YzGdVGvMhtyMN+RmjaEAE0ykyp40m3dDOUHIXCG1Bu60zAlkuXk3VME5aww1IGAiB+NJq3k3VAMya0Sos0TvhqOeJ0vVueFo50nzI3HUm7uzAaX9mNNxgJknaXALzXtOa0rIKV8kgInc5XzEJ03QnlTCk1bznlO2dTZmQw6NKPp2hgLMWUcpwUCazbujnCAErZBam3X0caBAlpt3RxWcs87yZZ6Ov83jSastdPx9nk6EOot5dxz1PFlqVh1HO0/aH4miXufOBhT3g44DzDq5lixce886XlN6srgfvJTsxnzwpOMvnnjSat4dZVvxeYoR34bgDTl8iKK8ag1MKVYG0mre4E7+MJBklYVrb3AnhxXIYvMGW1rg4EMb+ZKkr5X6NP7LdvGDG/4jd+EbcKWbxJCT0hEgV0qtgT9N6gJZqM5gomH2pNG8IYdGeerOBhT3g44DoCZTJmALP78ypagGOeWLBDCRikxHfA4FtaEpRRVIo3mDmVRizIYcTsOlWUNTGwowm5pSgoE0m3dNOUEIkkmTUvOu6UtwECTmf8+hDaO+iwc2sgVss5XrILah4gIJe5P2hSqYSYews0L9MERviEpRM5ClZlVTtMNOKqfEij1WTVEPRxvLU2tgYvWW0aswekNOWlMGsvh90FIS/HkVkWtvNGKVcKTVvGvKtjZjNuTQiNxyYyjAxPqe+u1Js3k3lBOEzBVSa+Amh+XJ8ujdUAVnMzecogMT6Y4nraFuTjUgELlSag38FDU9WarOc452nrQ/EnmsuTwQMNbzzuk4QONJGtzC6D3nqObJ4vdBS0lURoyYJM8p24r2HHOKP6E2p2wrrPvbte6wbpo1dIYCTGyzkyp70mzeHeUEIXOF1Bq4yWF5sty8O6rgbDrDKTowkYPxpNUWOqp8RIaPQ50lencc9TxZqs4dRztPmh+Jo17nzgYU94OOAyBpKbWk0Lw7jmqeLO8HuctuxFdT0FlWCXHirti8O8q2Isn27VkDGqXoO58aCjDBlPodSKt5gztNHwNJVlk4OUe8TQ4rkMXmDbY0A0TwLc9HgCk5mEAabQHMSYdArlS1Bv4UNQNZqM5g4mEWRZWlk3PI4VEWn2Eeu9+M+YzglwnYMvPGZIiVRHyHeXw/aCkJUd+uWkMjVglxvrzUvCGHVGLMhtycN+TmtaEAE0zUb0+azbumnCBkrlC1Bm5yWJ4sN++aKjjnqOorDjFzFM7FtXcgreaNmjmWs1JqDf1I6YRAlpo3aq24K7xOKDbvmhKo81p8pHm0WdV0HAD89tQamFlJxFeaC/pB7rIe8dUU3EVAKuHJ+P6LzXtG2db5mA05NCK3PDcUYM7nlBIMpNm855QThKAVUmvgTsuFQJab95wqOOdwf+XmDQ+TbMGTVvOGc2E5K6XW8BwU9TxZat7QT+rKCrcOzOcc9eaGewfmczoOEEga3MLoPac1JeSULxLARO5yPuKrKWjPKrHC/QOQQyoxZkNuzhty885QgAkm6rcnzebdUU4QMldIrYGbHJYny827owrOeWc4RQcmcjCetJp3RzUgELlSag38NKnzZKl5dxztPGl/JFLPheFWgvmCjgME0mreC45qnix9HwteSi5G3E0wX1C2NZDW6L0Q1xOMuZ+AN+TaqeWGgilfUeBJq3nj15M/DCQNXOHaG9xpHhnIYvMGW7KFFpfSFUdvMCUHE0ijLYA5hdwWH31dZWMM/GmeH8hCdQZT8liBND8SX1kwtdxZMOVLCzxpNO92ytcWeLL4ffDFBdMxNxdM+eoCTxrNG/0mlRizIdfyhlxbGwowwUSq7EmzedeUE4TMFarW2pouMQhkuXnXVMHZzgyn6MBEDsaTVlvAIZ84I4bIlVJr4E9RM5Cl6oyDJNwVXieUrr3x46SeM8M1Bu2MjgME0mreM752x5PF74OWku1sxDUGaMQqscI1BpBDKjFmQw5XuJBbnhsKMHFlC/Xbk2bznlNOEDJXSK2BOy0XAllu3nOq4GznhlN0LRIayRY8aTXvOdWAQORKqTXw09zIk6XqjEUzP5I9tYZ+sHoarjHA98UEvz21BjmsJKLMZGxqDfzkLucjrjHAJ89YJVa4xgByaBY2ZkMOH3kmt9wZCjDbBaUEA2k27wXlBCFohdQauMlhebLcvBdUwYkj8+WpNTCR7njSat4LqnyEyJVSa+CnqOnJUvNecLTzpPmROOotDNcY4DPfpN6etEbvBUc1Txa/D15KLkZ8NQX9ZpUQJ+6KLxbDvczRzXZjNuTQKLllnEApV2UwpX4H0mre4OaOr3KNAQQlhxXIYvMGW7IFfLmu/EAomJKDCaTRFsCcQi7IlVJr4E9RL5CF6gwmHmYR7Uon55DDo2y4xqCb0nGAQBrNG8ysJKLMZGz0Bj+ryIhrDPBVEFaJFa4xgBxSiTEbcihaS7MGfAjCoMozSgmCnyeQxdcYgJs67kkauMLUGgSRw/JkuXnPqIKzmxlO0YGJdMeTVvOeUQ0IDq6tlFoDf4p6gSw17xlFO/DLYS67YwzMPMqGawxwAE/w26vWIIeVxHCNAfjJXc5GfDUF7VklVrjGAHLIrYzZkMMBM3LLc0MBZjenlGAgzdF7TjlBCFohtYYyUnJYniw37zlVcKKmtLxqDUykO560mvecakAgcqXUGvgpanqy1LznHO08aX8kVk/DNQYo0xX89qo11PiSkniy9H20tJSEqG9XraERqYQn4++VTs4hh9zKmA057OvSrGFhKMDEvi7125Nm88a1B2lV4Ulz9F7QNQboHBtFNfrEGNjIFhaGU3TYoybd8aTVFhZUAwKRK6XWwE9Rz5Ol6rzgaOdJ+yPxKBuuMcCeveC3p9Ygh6KaJ4vfBy8lFyOuMUCtAKuEOHFXbN4LyrYiq5Pfs+1d680bckjklBdgIuWT+h1Iq3mDO00fA2k1b3AnhxXI4ugNtmQLSEOV5yPAlHQnkEZbAHNyMyBXSq2BP0W9QBaqM9JpNMyetD4S7m+LTnyBOrPikgIwCX6ZgC2rWoMcUhJPFr8PWkpCVF5FemZWUbYV7TnmlJo3mEklxmzIISqk6AuvblDlGaUEwc/9Ll57g5s77kizec/oGgPIZKMYH73BRrYwM5yiW8yoBiSQVluYUQ0I5KyUWgN/inqBLFVnfLQrmaUn7Y/Eo2y4xmAxo+MAgSQtKTTvGa0pIUcoyciDqWBiFRnx1ZTFjLKtgYz9LjbvGWVbF2M25Ba8IbdAuVy5O51TShD8K6TWwE0h05Nm857TNQaQyUZRYN5zquBctIZTdGBKeZRAWm2hpRqQBTJYq1StgZ+inidLzbvlaOdJ8yNx1GsN1xgsWjoOEEirebcc1TxZ/D5oKYl+jJgkt5RtRXt2J8Xm3VK2dTFmQw6NyC3Dr5Sb94JSggtP0rgXXiEIbvKHnjSb94KuMVh4kgQhfo36WgvYyBYWhlN0iwXVgATSagsLqgGBnJVSa+CnqOnJUnVGGEjR25P2R+JRNlxjsFjQcYBAWs17wWtKTxa/D15KLkZcY7BYULY1kNbovaBsK77UNeZicbRKyxB80MtQg+m40gQ/0lYbd+xpEhlpq5U79uS4Il1s544vWQVow4E6cFE9SKSNhuG4k9Nx9EqZNicgzZUiXajfjksMeu9u2LK9MidJjLnhbgNIoEMCkTZaveMWSiMWm2M3xJ0EoTIjPqgCDsrERtpo+46bVWTMfh0+m0fRGbShQhNclDSMtN34Z5Q3dKJWKG1z7OzUPG0w/hlVekKe4bid42Jt8rTZ+GdUL+KkrpSHcwJSjI10sfHPKDpCgqjCLK2DcdxCZQ03H0ACHSGItNn4ZyISerr8vdAS1PXl2zk510qoiDiaXjqvd5LY8YzZzcPnXUTcxlGi4rk9JFBKMdJ2428pq+hErZCdc+xpLhppg/G3VAcKGYbDeI6LXZCnzcbfUjWJk7pSls4J4Gjr6WIlb0WM9PQKDyZU1nAvAp6GDhhE2mz8rYiEni5/L7RARV9G3I7gWgkVEQfXy42/pTwuvps0Yq8PrUTcRnLHYPzIQ8QlH6Q52m78C8o5OlGy4KmwLM6x87zU0wbjX1CVKOQZjuo5LnZBnjbbyIIqLCF1tfsSnACOtp4uVvKFiJGetj8Yx0p8nJrVZ/RUG1y0iAm01fjBTUoT6NL3Ai5yq6C/nc/DV8koxxvp+JvFxg9JNJ/Dt5hHzDrQimYd08pQ+zkFFyl4oM3GD3bR/VVuUUCv6BqFSJcbP2SQjeDDbeWFc/hlqkOJtNVGIIm1qlrtNgXXFYq2gS5W8opjJCTwKqR42g9uMeaGOxXwNHQ4IdJm4684EuKzeuUFAfh9XriC/nYhneNgh+Nps/FXlAPGx+tH7BO6VhS38XUEi4LjhpEU+SGBJ6TFW/LoDOcrA03DWBr5wc5OzdMG459RhSm6ZjjmhwsAqEol0mbjb6hOxUlaLeEHARwrPV1s/I2IkZ5e4cHYqzWGGxfwOujoQqTNxt+ISOjp8vfCC1f0K1++Jutw0GPOCQfabPwN54Rx2GrMrIO3EXFdhKFuFFycrgy0PfLjwwLkRzxtN34c1xeixGxydEWtezK2kdZwCBASqIYl0mYbaal200laLeEHARxtPV2s5K2IkZ62P5iIla3hPga8DjrYEGmz8bciEnq6/L3wwhX9GjP1bjknDA57GZ57dp7PjdljxKUwIm5jE7t8zY8STo6xnrYbP/ZnyWI9bTd+bJkKUZaCPLwbqk7FZ7gMRwQdF7mgQFttBNzkiECvlvCDAIq2gS5VcnDRoAd6hQejMa8mhtsa8JLp2EOkrcYPSaQ0gS5/L7xwxcZ5PoXWi/xoJVRkhVsb8OycE8Ze7ohZB/ZrU/k0VtyGmlPHxb33tNn4IYo13NNm44coWowEmkSNredxT8Y2UhkOEEIC1b9E2mwjFdV9utTMSkV7TgDNsAJdrOQVx0hIkFnewn1+cIsxN9zl4PJMUoJME5fV5jpJQmnECnZ08hEShMqMuNHB/SY7HE/HsShO+EESzeeQSBkx60ArduG4hLE88le4gTDF2EDbjR83GApR8vxj6ZoffoydmqcNxo+L87g7huOFSEVxLUygzcbfcC0MJK1U0ue6xdHW08XG34gY6ekVHkyMueGmBzwNHZmItDnyNyISerr8vfDCFeFnRMIPrdjheNps/A3nhKtR24xoxXEbn6kzGD++/0Ym4mm78eNDcEKU8F3Pi40f30ATothYxhfq4xoUqnsFbTh8CC6uhQm02UZaroWBpNUSfhDAsdLTxUreihjp6RUeTIy54R4IvGQ6UBFps/G3IhJ6uvy98MIV/Roz9e44J1x52mz8HeeE61HbjGhFcbtGrW+58deogk1mFmiz8YOdQm2gaRhLjR/s5NQCXR75wUc2Uk8MRxOn4CIXFGirjYCbgjXo1RJ+EEDRNtClSl5POEYG2v5gHCvrieGWCLxkOm4RaavxQ5JQGsNNEe73hcqMuCvCcQgVWeG2CCeJVWTUNmMtthlxNbMh4Qcu7r2n7caP+Ep+xNN240d0E6JMCT88GdtIZTi4iE/scy1MoM02UnEtDCStlvCDAIq2gS42/opjJCTwxKp4nx/cPOa14Q4J3ETARzACbTb+WkRCTxe/l5oXrnU94iYJ9J5zwoG2Rn5ws+MZtc2Iq944bjeWEtYaV7WTmXnabvy46l2Ikqmb4siPy9KFKMv5XFwqwVWwdWM41ggJXAsTaLPxN1wLg7vfV0v4QQDPsDxdrOSNiJGetj+YiJW4XNkw9cTVxjzUcuVaePk6hotXsIEufy+8cIWEEXvtaMVRytNm4284J4zr2Eck/NCK43ZrKWGt8cVreveetht/y/lKiF0l4YcLGtmpeZrCwehsP2SwjXSWE4+48ZFdkKfNNtJx3SikrpbwgwCOtp4uVvJOxEhPr/BgPL3CZ2INxo+PvJICetoc+TsRCT1d/l7EwrUbcQvFtO44Jxxos/F3nBPGHSkjthnRiuI2bkUxJPzARQoeaLPxg52mo4GmYSyN/GAnpxbocuMHH9kILn0x5ENwPwy5oEBbbQTc5IhAr5bwgwCKlYEuVXJwiUF39AoPJsbccDsFrmPmIxiBtho/uIXSGG6ocH0RKjPijgpwcE440FbjBzerSDVmmxGfYqa4jS8rWxQcOcPkePFBZp6Qlpf3gp2772m78SNbJ3plqvBDd9hGasuJR3xgmrXJ02YbqbluFFJXS/hBAMXKQBcbf80xEp++loNeuM8PbjHmhrsrcF8DH8EItNn4axEJPV3+Xnjhir6MmHqjlVCRFe6wcO+BHc+obUZ8w41deGMpYcVX3Lj3nrZH/obzlRArVkzFW31gZ6fmaUPkb7gKdtZYTjyCi12Qp83G33AtDKSulvCDAI62ni5W8kbESE+v8GBCZQ03W0xnDR/BCLTZ+BsRCT1d/l544YqvY4yZejecEwYHR6niIh9wc6watc2IDzFw3O4sJaz4GAMruKftxt9xvhJiV0n4gZ2dmqcNxo/LbGj20FlOPM46roUJtNlGOq4bxfmr1RJ+EMDR1tPFSt6JGOlp+4OJWInrQcrX/DhMxkrvabPx4w4JHnDD3RfuYJtQmRG3XzgOjlKejr0vN/6Oc8LNZMw2I1pR3G4mlhJWcFHvA202frDTdDTQNIyla34UK5JTC3S58YOPbARljIZ8CLhImwJttRFwk1aBXi3hBwEUbQNdavzgEoMuboAq3uqDJDHmhlsxcESRj2AE2mr8qARlpfF08XvB1/OS+4C0ERV+aMUq4mmr8UMSq8iobUbs7lHcxj6dRcFrTldCgsz9FH6ncwp20X1H240fBQw0Cp42GD82+lmG5cQj9htZmzxtNv6aa2EgdbWEHwRQrAx0sZLXHCMhYYWEH7jFmBvuzIDW8BGMQJuNH/tuPOCi4Aave9TnXV1fhMqM+ZpOU3NOONBm4685J4zl94htRrRiF95YSlixoGYF97Q98jecr4RYsWIqXvODnZ2apw3G33AVLJb/hgIocLE2edps/A3XwkDqagk/COBo6+li45+LGOlp84PNRaycG27UwN2pfAQj0Gbjn4tI6Ony98ILV/RlRMIPrVhFPG02/jnnhKHxY2YdYpsRum5R8I7TlZAgi72KI3/H+UqIWiXhB3Z2ap42GH/HVbBNZznxCC52QZ4220jHtTCQulrCDwI42nq6WMk7ESM9vcKDcazEnYfla/4Gdx1SvPa02fhxQaCQZKg5QF/YrXZjvqaDbKVQEXE+snjND0k0n5tPxmwzzsU243xiKWEFF/U+0ObID3bRfUfTMJau+SGKllKBLjd+8JGNICbl51HP3vzx5eH+49X7tw/vfl6brvUOa4OLtCnQVhsBN2kVIt1qCT8IoJVpoEuNH1w86J62PxjHSgRbQ8IPXKw1nrYaPySx0ni6/L3wwhXSRky90UqoyAq3ckwhiVWkfuRAMtTzxZv7D19++enLu7u7h43bh9tffvp8/9ezz055n335/fbTF1A/uhpSR6xF/d66//zx9sED7/Avl6QMir9z9/43h6Dlv6ez2zc/vv174+7Lm7tPwCbPUYva+2e29stPb9xvLd2P/bzm3jcafgH85y9d99OLP13/YpuX1MYZleNaV8iGQjYVsqWQbYXsKGRXIXsK2VfIgUIOFXKkkGOFvFLIiUJOFXKmkHOFXCjkUiFXCnmtkGuF3ChkycOchnCpR3Wph3Wpx3WpB3apR3aph3apx3apB3epR3eph3epx3epB3ipR3iph3ipx3ipB3nZG+UXMFWyV5eMGGmv08VzF8tWM1n3ezDZ2sc4Z44vFbKukA2FbCpkSyHbCtlRyK5C9hSyr5ADhRwq5Eghxwp5pZAThZwq5Ewh5wq5UMilQq4U8loh1wq5UchyqaE0qg2c8q/P3tw63/7LxvJ88zv3vZ3vD3c3vjvdfHWwXN/8bn3z4OC7tV/ff7j7dPvxbu375fQf30+/39o92vhu7X+tfa/+XP/jH9+vrbk21T/+I4JqCPrHTy9+deEDt0h0k34EWSZ9bEhnl0khBZQ0UkBJJQWUdFJASSkFlLRSQEktBZT0UkBJMQWUNFNASTUFlHRTQEk5BZS0U0BJPT3U8yyYT/23ehb3e/AsWPnxZGAxmAzENi2N5LpCNhSyGRFMV0jyYqAkW7HNgiRvK2RHIbsK2VPIvkIOFHKokKOAYFM/xczjzPtZTPvv55V69hOFnCrkTCHnCrlQyKVCrhTyWiHXCrlRyHKpoZca0kO/1GO/TIPPKrNMYy2gNNgCSqMtoDTcAkrjLaA04AJKIy6gNOQCimOOBQPNk9KgC0iP8VIP8jKOMmo63GRfThgw2e6ZtZ+3/ydmBk7wz2uuBoStrBrYL7WhybxCNhSyGRGoAEuu+5K3qE2SvK2QnYjM6P3uRgSzIpY860vei23mxLWvkAOFHCrkKCI8lMcBcVt5/OvNwKKpTXquE4WcKuRMIecKuVDIpUKuFPJaIdcKuYlIxXq8jFBvCOeDOP1SSVquayjqB94aWUlUEAlFfZBQVAgJRY2QUFQJCUUNkFBUAQlFHZBQVAIJRS3Ali3beHhGt1XIatAO3s2r2KhjvqgIKGglUVETsNNIUFQF8Xtx4MX7iwMvkDjM2nvAUp7GezjB3nuknr9UyLpCNhSyGRFen2wpZFshOxERniEi/HL3IsLvdl8hBwo5VMhRQFAKQJE9IO7YDSvAIA3yKrbhHp4o5FQhZ4QIyYM51bniulDIpUKuMpJRINPX2teK7VohNwpZLiOEf9H7QBnN0FtQK9L1qCA4X0tQ1BAJRRWRUNQRCUUlcWd1RScG8WwZFUcy7up+RdWRraLuDMQPgtoy6pNkjAoloahREjqOnWAlWyYNElaeVEhASYeEv4hKJD1IkI70IL3nqCESiqOvfQhm+E/jQ5zgvg9RyLpCNhSyGRHhQxSyrZCdiAgfEhBX8SlUaDi9iI3Y0ewr5EAhhwo5igi7p+OIuHTrn79U1fOB8r6Kf2drOVHIqULOCMlLPVccFwq5VMjVN6S+VhzXCrlRyHLZF/t88O6XLzVLVBCUIbEP0a2iishWW7pVVBK08u9K/XxUGSllV0vZ01BSkSQYx/PkP4PYsUz6I7MKWmjSIJlVCK2w5U0vI2oN9rMJimojoag32KvmiUiQJfjioGoHAYN5GgfhBPcdhELWFbKhkM2ICAehkG2F7EREOIiADBzEYAWwFxsJB6GQA4UcKuQoIsJBRORRBxH/LhyEQk4VckZIdBCDwH2uOC4UcqmQq6HUgTN7rTiuFXKjkOWyJxa1ysNJhmaJCtJzELpVVJGeg9CtopJEBzF9PjTcqDI9B6GlJA2RqcXBcymPoKUkjZF5Rt3qOEA9jxAh6RE0FBWl5xFCK+kRAqI9AlJ3T+MRnOC+R1DIukI2FLIZEeERFLKtkJ2ICI8QkIFHGCyU92Ij4REUcqCQQ4UcRUR4hIg86hHi34VHUMipQs4IecQjKI4LhVwq5GoodTB5fq04rhVyo5Dlsid28lwlKTRLVJCeR9Ctoor0PIJuFZUkegT981Fleh5BS0kaIj3CN54rKYycI2jBSWXkHCG06nmECEmPoKGoKD2PEFpJjxAQ7RFQ5fA0HsEJ7nsEhawrZEMhmxERHkEh2wrZiYjwCAFxBXFiETGIU3uxEecW9xVyoJBDhRxFhD3LcUQWaRExsLJX4e84W0X5SYWcKuSMkEc8guK4UMilQq6GUoceQXFcK+RGIctlgPDJGNfZ4ebiS/orpyE0FPUDMjhpqVttaSiqyCM/HtVFit3VMqJ2yFZRPR4RG1VFMkRdkVBUFglFbUFZKq8XQn9QaMrrBQ1FFUExKa8XQivpCwKifYGrhHsaZ+AlDzY1UM43LFEKdVLY+ki9X2fGBG1oaDNBMvOHGr/B1oZm3NbQToRQ8Zh+cTe1kjmsxTD/kBqJ/Q0NHWjoUENHCRJ7HBHqbXKgdHGwy8GtyI1o6FRDZxo619CFhi41dKWh1xq61tBNguSGR8K+vuOhhaEOKmiT3DVIutPb9Mi028pgSVd6+x6ZdklbejsfmXb7GSypR2/zI9MuKUhv+yO2+8b+R2olN0AyWNKR3hZIbCddSYQyvsTVr8mCqv/Y/qgrtx3MLDS0rqENDW1qaEtD2xraiVDPS8R+ia2OxCj2OjR0oKFDDR1FSO53ROjrGx6pkdjx0NCphs4Y+sqmh+a70NClhq5y0vXGh2a81tCNhlArGUZjsDGgNj+4GU87MljSnd7+R6Zd0p7eDki+K2oLJCNuN4PtZbD9/E+obZAMa1K13kZIpt1xwuRWSMLkXkgGI+2SuyGxXc+ZhDHLOBNXWPc0ziSU7Ikpx0tXjN/3L+sa2tDQpoa2NLStoZ0I9ZxJ6EQ/gTEdqO9eZEQBedLefQ0daOhQQ0cJElmMCOHYjZux162abYROCtU5iSwCOtXQGUNZweea5UJDlxq6GgoevLDXmuVaQzcagj+hZ3VdXgySyyjEVu8CMxCNJb3pOxLdLmlO35H0+qC3cpMi9bZRM51IetPbSO0/4HQy9E9JjXqbqBnhSZF626ixHT6vwQuahImarKQ++IoGtUv6g29h8Jom8vacR3g5GefhSt6exnmEYrqe81DQujuS0/cnGxra1NCWhrY1tBOhnvMIvzhwHoMB3YuMPecRGflVH+hWhxo6SpB0HkHW484j/L3nPBR0GgWLVmcMBecx3BfRLBcautTQ1VDwYIX3WrNca+hGQ3Ae9GA+TzPcRXiZ4UlqI80o6U3feaiXhpMcGkuqA95sH5Ie9X2HlpPUpu87es9XD7eHkxL1XYeWndSo7zpCu77riFjPdWgsaU/fdYR2PdcRoIzrcNViT+M6Qh1az3UoaN19Z23oOhS0qVttaWhbQzsR6rmOIL6fJp0OJpJ7kRHnhHneERkZOtCtDjV0lCCRK039qh6bd4TfwplWznIo6DRJ4VZnDD0y71BSLrSUSw1dDQUPd1U1y7WGbjQE1xErNx/JmvKfxfqFWAjbyLRLeiMTj0lxJJY057HcaUb0bgZLStNLn3796ZIG9RKoGdFJh3op1NgOH8ESU444vmINc5JeusBIdcS6JulOz28EcRm/4Qq7nsZvhJIxd66dtjEqlUeNjVjz1913M+BJcKKd86gR4sTAZmzVOzsynQ7c+VZqxaa+raEdDe1qaE9D+xo60NChho4iFGr1/RHX4wi5j9Xyro/OmsY6PHZBJ8yY3tephs40dK6hCw1dauhKQ681dK2hmwjhwzqk6MuIuQ9ScSms2oJNrYSaJ0XpZ03D++lnTTWWFKNXLJ75jaQavXLxTLukHL2C8Uy7pB79rKnuX1IQ2Y40BBUTX6ka168dp0uV1uB4acRk4XjEeo4jNMs4Dlfc9TSOI5SN4cvESUteuq/kOJ/Ai7J1DW0kiK19M0L4mlSStRUhUbe6raEdDe1qaE9D+xo60NChho5SV/ntH0foG1nT8G5w6QJPMRR0mkRxqzOGvpY1VaIutKhLDV3lpGeypkr8tZZ1oyHMNiKn3OnKlIxzMzHrIFYx69BYUh45x0/a0092ZLuis6b6J5JOSXFJqfrLluxP6Kyp/omkalJc0rX+6iXy9rKmEetlTTVG2tXLmoZ2PWcSoIwzcVVgT+NMQn1Zz5lESDoTBW24z2k5lyOdSYDcJzZEiB7k17YiI77VmrRrW0M7GtrV0J6G9iOEoZOdGATMA26VOnGooaMI4RMBqdVxeuyUSB1WkGspJxo61dAZQ2FBM9Ddc81yoaFLDV0NBatcSBg1oevXWsqNhuBiiDN0eVgpmuFZz2BJlfq5ENUr5EI0llQn5kLqYbVq0qN+LkTLSZrUdypff76MEuGjF1p2UqO+N4m20kujRqyXC9FY0h6ZC3kdfzfjOly52NO4jlCI1nMdEZKuQ0Eb7kaWoesIEFwHz0MiJP2EgnaiLOFNdjW0p6H9CA38xEB/DrgV+4nQCTGaR7FVz0/EZ0x+YlDB8koLPtHQqYbOGApGNzy7plkuNHSpoatvCH6tWa41dKMh+Al6Yz5fqSrKMzzrGSzpTd9PqNGAn9DY9uDphguopEd9P6HlJE3q+4ne89VD2Rklgp/QspMa9f1EVPmen4hYz09oLGlP30+Edhk/4UrJnsZPxAJCuV6JkPQTCtpwFy8N/USABlOMQdZkKzL2phiRkTuxo1vtamhPQ/sR+tYUI/yiGM1DZkze5ChCPdcRHzu5jmF9qZZyoqFTDZ0xFFzHYGZ2rlkuNHSpoatvCH6tWa41dKMhuA56ia7LU533UC8Ze7UaS6rUdx26XdIc2W77G31IetR3HVp20qS+6/j68x1kniWjRfiwlv6944jhI8sibRra4XPJhCXlkVjSHnxKmdqlUdSuw11p9jSuw0vGIkO4jgQJ16GhjQSJ1UmE5BQjQWKKoaEdDe1qaE9D+xH6xhSDW9EUQ0NHEZJ+Ij3jY1MMLeVEQ6caOmMoP8XQLBcautTQ1TcEv9Ys1xq60RA+1xUqRPGq/RRD+YkMz3oGS3rT8xOZdlsZbLvfh2Fqepn0qOcnMnKSJvX8xOD5hiX3Bxk5hxksqVFvihHb4avn7Cci5i74YEeRA5P+uEs92FWklg7qf5vvyWpJ3c2IbrIgXUWEpKtQ0EZilK4iVq+5azFFJmNYhR453R0mlMrIYDsZbDeD7WWwfcLguLkr1UABDlIzFPGyF4lPIbCjTLvjhLlPtIqfGH5Ii5rx6zzJYKfpfbI+nD3yEIPcyXmmcxcZ7JIw/okrwjC/FQ8xPO9CzVjZrzPYDT2YCJTLR35DHaHPCMQX99JoCDNLujdFqCbj2cy13Mp1aPuR9zqsaCMFFJqwJA2UIKkgSjqpQ6SDrlRLvFu1zqGOi/2rwxzIaiiOxZAeul0W8TPquz8kUUxsSBORz6aOJ1WcIjkifNNjpanuI8tPNI0JBW093xQh6ZsUtOG71E+yRsh9hjk901bC8C1udkSxiE5gO5l2uxlsL4PtExbOvTXtYNF1kBr0XFDsRM8Faex4ILwaqNarjOyTDHZKmHQ+6UWEjg/3wM8zci4y2GVG9tWg3/V8YHqvM4KuM9hNRjgmNf2eV8PtjJcZSXA0+v3i454ZcDMHki5JD7A96MnwHWJuk5FPqtX3MKllz8NEEKbt13mLdvg1yiXpF36KjPkw/a4EjwgUfohUDIkXMc1JnRH+lxVLgKRZmNkIVxLZ9TTHlaE9STLFfdN9OM2JkHQlCtpIjHKaE4vl+tOcYQ3KVuTsT3MSK7/inUy73Qy2l8H2CcMO2NemOeln+SkOiZWxowx2TFh/hqCmOeknRAmJYE2Df5rBzh75CTXP0T9xkRF3mcGuHvkJNc/RP3GdEXeTweB3mFkOhp7n6B+B+8mASfnctQ9inpNpycomWm4/0iE9z8lIZBUUElkHBUhK6K59/eo8J/6MKPlckhpKkPQQl7fSc5Mi1u6bEr/+cnZx+N0S4fV7/M8sfbS5aqfDWLJ8lV4D7iIiaSc5kJQTdw4JbxW7rb3Vk9XGunsMnLfit/wyQexc1zW0ESFcnpb6vxkhd/8jT3xi2R5udeSJj8Z2iJfb7WawvQyGQfHPMMVxPRebZt1gGXiQYTrMYEcZ7DhiqH/1cW94LIf/nB7vREOnGjrryx0mejXDhYYuNXTVF1vPB/O015rlWkM3GoLPoXpd9yLUFlGGJamNqB3GPEeV/S6T4sh2W5l22199Z5jiaNFJh6TopEMSYx0K85u2boe+i7RIHgQmNZIg6RFKAoVTiVqKq8HE9CaB8ohwfI4pbgGjlkmFprjWSziMx4piXabgiaY3sZwOZSXsgoe7+i/97+P7+6L4ZD2DbWSwTYFJJ69yO9wR9iwa28n8xG4G28tg+xnsIIMdZrCjDHacMHflJMevWjmV+Bii6O+EWHlWfprBzjLYeQa7yGCXGeyKMMykRZeHh/2oGav8dQa7yWBwLel5hb2QCslaW9IhCZISSZC0SIJbuR/azoGkNZKd1EaCpDcSJMWRIGmOBEl1JEi6I0FWHvGWXuU6z7oiWrKyiIzO68SuZxyu0O1p1kexhK435dDYuiuMx8xkKtptZLDNDLaVwbYz2E4G281gexlsP4MdZLDDDHaUwY4T5q5IF4Y2LF+jZjLJG1+VOLd1mml3lsHOM9hFBrvMYFeEyVgwrdVSJ3WP49k1sTJ2k8HgGzTz8mUOJIWR1RSkMRIklZEg6YwESWkkSFojQVIbCZLeSJAUR4KkORIk1ZEg6Y4EWXl6uZPMqzvJvTpWlt7k4rFaV3c73BP5hlBLJ23+pf+1vh9Yz2AbGWwzg21lsO0MtpPBdjPYXgbbz2AHGewwgx1lsOOEDXzDYL3/ippJ3xBfac83aOwsw3uewS4y2GUGu0rYoj/VUenX2BVc4JlmcdfEythNBoNv0MzwDRmQFEb8DJYimZakMrIl6YwESWkkSFojQVIbCZLeSJAUR4KkORIk1ZEg6Y4ESXkkSKoiwZPcCzklUNbBJ1DPG1z12tPMG2JdXG/eoLF1dxOlmjdobDPTbiuDbWewnQy2m8H2Mth+BjvIYIcZ7CiDHSds4BvUBk18BcIPnBAr+4vTDHaWwc4z2EUGu8xgVwlz/xZTnUFO4TU1k1vB8TFwY2jyFzeZdvANuiF8QwYkhREi4RsyLUllZEvSGQmS0kiQtEaCpDYSJL2RICmOBElzJEiqI0HSHQmS8kjwVe7ZSVdkS1IWceXXkoZN+wZX2vY0viEUzfXnDRpbR+e1b9DYZqbdVgbbzmA7GWw3g+1lsP0MdpDBDjPYUQY7TljvO3XIKw2+ZEjN5I5KfC3iqp7TTLuzDHaewS4y2GUGu0rYwDcMsj+vqZn0DbHL+Bv7Bo3BN2TAlzmQFEaIhG/IsJPKyJakMxIkpZEgaY0ESW0kSHojQVIcCZLmSJBUR4KkOxIk5ZHgq9yzn+RAUpa+b4ivTvkGtHoi3+Al99cPLzPYegbbyGCbGWwrg21nsJ0MtpvB9jLYfgY7yGCHGewogx0nDF+dFEF4NsxFpmZz8bXkDHaawc4y2HkGu8hglxnsKmL9by3NhqnI1EpkGzR0oyFc4Ri/YioW0UlVxJeblklVJJZURWJJVSRGqoIj0ZTHJ13BEWhf0NtMhwU2S9KdXnUqvSWx4Uja06tPzbUk/ZEtSYEkSBqEj9XwlgbJ7OV/ZsNzw69EO94WzYGsRbKsPbXUTuPJalXdBrNfRHAoeZnB1jPYRgbbzGBbGWw7g+1ksN0MtpfB9jPYQQY7zGBHGew4YXNemr8ijBeIJxnsNIOdZbDzDHaRwS4z2BVhfac2zEjSo7FTu85gNxkMXiLphig0YuUQIGuHAFk9BMj6IUBWEFGIxRoSPthULWbN8EOrrDHCx7DKCJB1RoCsNAJkrZGlo/QqBMh6I0tHqWWo/588bwb/DL/TltRK7tImtZIYqZX4tMbydfo57TJcQdh/593z7m5ZeBKXduWl7myQuXuZWvHe8LqGNiKEh6OaiwhNBzFxsJTeombsV7cz2E4G281gexlsP4MdZLDDDHaUwY4z2KsMdpLBTjPYWQY7z2AXGez/83Z2S43jQBR+FYoXmCQEwrgGqkwIEP4ChP+7LBhILcQpY3Zq5+n3HMdOFPxxt8Ul50hGLXW32o7UfQ3YDWC3gN0Bdg+YHEt5WDGMFyrNaC4HINCy0o6llj16JmlDTOqgoAP+ESlETBoRk0rEpBMxKUVMWhGTWsSkF6owDYNfaEaxsy8Xj/fxq8o3tKujFSsPH+95+raXZm8jWbCc//+WXV2Hzuwbgp/5d0ooyO3TrUO7VcfFjtsroaZ6ho7m88XbqlmgTvuAHQDWB+wQsCPAjgE7AewUsAFgZ4CdA3YB2BCwS8CuALsG7AawW8DuALsHTI6gPAe47AgArHRjyeYr7fjkCKD7Hv0jUgc5AuhOCiFHAC1JJeQIoCUphRwBtCS1kCOAlqQYKjZftQRHEB63/BZHMHM2S45gBi05ghq0qxOqhQcJHUHpuILiVntls2ZQ7nIfsAPA+oAdAnYE2DFgJ4CdAjYA7Aywc8AuABsCdgnYFWDXgN0AdgvYHWD3gMnqq4ULfmjbIbBLYKUK4RrHPWpJ2qDtH/476UNMCiGrh+6kErJ6aElKIauHlqQWsnpoSYohq69aFm8sy9t/eGbyW6x+duxtyerLnIaL18CuzpLbxANHsFtCm6HVl0folqy+whbt9suuoZYcANYH7BCwI8COATsB7BSwAWBngJ0DdgHYELBLwK4AuwbsBrBbwO4AuwdMVl9fpHiHwEoRlgy8UoVPVg/P3KNnkjpor4fupBCyemhJKiGrh5akFLJ6aElqIauHlqQYsvqqJVh9eNDxW6y+PFal/1W9xe/oFkjxuTEokdkFbHeOLb7C9iosKGC3N8eCWxeAHQDWB+wQsCPAjgE7AewUsAFgZ4CdA3YB2BCwS8CuALsG7AawW8DuALsHTJZfLnpYZnCuCSE4V4UQnOtCCC6UIfg9gLRB+z38d9IH7ffQkjRCr/vQknRCr/vQkrRCr/vQkvRCr/vQcqEZhcXM9vsf7y9Jku+O8tH2r7cke066yevr+8pD+jHxC7724wBfyZKnrVV9m4k847LYeY8Zoy8skRxMscXWqDVThc+pUW1ThQuoUeumigWsURumaBj6tTby7+n1AeoXdXVCSr8BRv6MDp3ExP6tqk5JdcT5ByHg/ESNkDh9m/cj6b/pkeL84RgfKc5feYFrrWtViNHx/4ifp2P0miiaXV118EQRpfO16kTzrjPQ7sRL0lGn4ovup3XU4Uh3IkonctSp+Er7efFbzcj3/uvToPQPkRM21BllbIicY6HOKOOH/g8uvRhn14DpVn4NLeEXvTYtEg081u3QKPaFTnikrnRq5ZnTPUw/k4xE97UkMjG6sCeRidGVO4lMjG7NSWRifO3NIiOn+2iWCzkPUHIhp7xflouMRBmpJBcxAzHcR9mgJBeanBgnY8KltIEzpzxJlgv7eYCSi7ielotnw4vMa+wl9l1YUtA1SUWMblhLKtQmXYy2VMgpF4ulQsW2BUkq9j/mnF2ADK8luYhRMgPJRcxQjDNVkKNuSS5inGjCciGn1A+WCzldWrZcyClRsuSaJVv45GqUejVyrktwKGK4j9KeRk5aCnKJcdZR0kJRRTZQ2mbMOZsneQ1zPEKll9bY0bWKcWZe0DUxTsxMY+9o7MQ4ubLHjpySHnvsyCm/vsdOO4bqnmgc6KHEuGQNzqE9FHMqJ+NxsIcy52ou9Wf25KDY/pVZU7NLYYadmpMS0uwqNEFGaSklFfVxXklLhZyXWCP/YubVz4kcUWvE8ehVxCPy1WSaC0USuFoqZ6HRU7ig0SuUcAkMel4n+kKrB02Hkrgi/aY8qCqNkUXKgyKj4m2ad/SgYlw7DbXJHpQ5lTXz3PI+bo5HqAJFGjvu1WJY3rjZiFxHieavEbmYFox9oE6aP/biXhFn+acZ3NAo2B4V9iGj4hCaQerjug6eQeRUp8Mz+AXn/YlHr5qznl2SrC+lcRlIkkt7EDKqCSq5cA8S45KcqBneg5hToVWPnfcgczxCle/W2DFwFeMS5TgORyDIqW6uJMZwV4wrI5OHV7jLs666xpYY9elK6nRN9t3fiE5Ry6RkqGNSMXyxkIKxflm9WIOsXMgcectBZuDXF/KWfW2j6GEHfnPFl6T1CPGhXrjwfUvuk72n5nYPmX0xh8gc2eEy41CBooi+tjLcybSR4T6mbQxfsLWJ8R7mLQyZfW9SyDjWRIXb8d6ABramd2BylNoxcMMoPkqQZbWjXRpTrx0doIbIraMeKFThSMUBB+4DCswwLlNYhlGZgjKOyRyScVzggIzjMQcTzDhcQMkVHmN0rOCY8KFCY4yMFRhzXOywmN+lHRQXzI/Fp6vtX9OXdJLk44ezbOUpneT9x+KgSv7vNNlanaTddPJPkr2P04mXfZqNJ/lgmuvP95WXNBv/UY/RazeZ5EmWFD3davScnIyy57EavSZP+jCmM3tNfRxTteK1jVar0e44i1s2fvZxGOTydGqms9lpN5rrnfZmY63Z/ulky3+luY7UmFz7qVLXjUUT/Sj/kowek+wL8ilNNUomy1EPk/xjujIdTZNsOP6jCdBZUEkp8UaWeWt1mmZ5NhrnGn00lrxZ/7EwuR+/0+zv4tvg9n8AAAD//wMAUEsDBBQABgAIAAAAIQDCh9vyfQYAANcbAAATAAAAeGwvdGhlbWUvdGhlbWUxLnhtbOxZS28bNxC+F+h/IPae6GFJtozIgSVLcZs4MWwlRY7UitplxF0uSMqObkVyLFCgaFr0UqC3Hoq2ARKgl/TXuE3RpkD+QofkSlpadGwnBvqyDrbE/TjvGc5wr11/mDB0QISkPG0FlavlAJE05EOaRq3gbr93ZS1AUuF0iBlPSSuYEhlc33j/vWt4XcUkIQj2p3Idt4JYqWy9VJIhLGN5lWckhWcjLhKs4KeISkOBD4FuwkrVcrlRSjBNA5TiBMjeGY1oSFDfkISnq+gKqpYr5WBjxqjLgFuqpF4ImdjXbIi7+/i+4bii0XIqO0ygA8xaAfAf8sM+eagCxLBU8KAVlM0nKG1cK+H1fBNTJ+wt7OuZT74v3zAcVw1PEQ3mTCu9WnN1a07fAJhaxnW73U63MqdnADgMQWsrS5FmrbdWac9oFkD26zLtTrlerrn4Av2VJZmb7Xa73sxlsUQNyH6tLeHXyo3aZtXBG5DF15fwtfZmp9Nw8AZk8Y0lfG+12ai5eAOKGU3HS2jt0F4vpz6HjDjb9sLXAL5WzuELFETDPNI0ixFP1VniLsEPuOgBWG9iWNEUqWlGRjiESO/gZCAo1szwOsGFJ3YplEtLmi+SoaCZagUfZhiyZkHv9YvvX794hl6/eHr06PnRo5+OHj8+evSjpeVs3MZpVNz46tvP/vz6Y/THs29ePfnCj5dF/K8/fPLLz5/7gZBNC4lefvn0t+dPX3716e/fPfHANwUeFOF9mhCJbpNDtMcT0M0YxpWcDMT5dvRjTJ0dOAbaHtJdFTvA21PMfLg2cY13T0Ah8QFvTB44su7HYqKoh/PNOHGAO5yzNhdeA9zUvAoW7k/SyM9cTIq4PYwPfLw7OHVc251kUE1nQenYvhMTR8xdhlOFI5IShfQzPibEo919Sh277tBQcMlHCt2nqI2p1yR9OnACabFpmybgl6lPZ3C1Y5ude6jNmU/rLXLgIiEhMPMI3yfMMeMNPFE48ZHs44QVDX4Lq9gn5P5UhEVcVyrwdEQYR90hkdK3544AfQtOv4mhdnndvsOmiYsUio59NG9hzovILT7uxDjJvDLTNC5iP5BjCFGMdrnywXe4myH6N/gBpye6+x4ljrtPLwR3aeSItAgQ/WQiPL68Qbibj1M2wsRUGSjvTqVOaPqmss0o1O3Lsj07xzbhEPMlz/axYn0S7l9YorfwJN0lkBXLR9Rlhb6s0MF/vkKflMsXX5cXpRiq9KLvNl14cqYmfEQZ21dTRm5J04dLOIyGPVg0w4KZHucDWhbD17z9d3CRwGYPElx9RFW8H+MMeviKGUsjmZOOJMq4hDnSLJsBmByjbcZYCm28mULrej6xVURitcOHdnmlOIfOyZipNDJz74zRiiZwVmYrq+/GrGKlOtFsrmoVI5opkI5qc5XBn8uqweLcmtDlIOiNwMoNGOi17DD7YEaG2u52Rp+5RbO+UBfJGA9J7iOt97KPKsZJs1iZhZHHR3qmPMVHBW5NTfYduJ3FSUV2tRPYzbz3Ll6aDdILL+kcPpaOLC0mJ0vRYSto1qv1AIU4awUjGJvha5KB16VuLDGL4H4qVMKG/anJbMJ14c2mPywrcCti7b6ksFMHMiHVFpaxDQ3zKA8Blpoh38hfrYNZL0oBG+lvIcXKGgTD3yYF2NF1LRmNSKiKzi6smDsQA8hLKZ8oIvbj4SEasInYw+B+Haqgz5BKuP0wFUH/gGs7bW3zyC3OedIVL8sMzq5jlsU4L7c6RWeZbOEmj+cymF9WWiMe6OaV3Sh3flVMyl+QKsUw/p+pos8TuI5YGWoPhHCbLDDS+doKuFAxhyqUxTTsCbhEM7UDogWufuExBBXcaZv/ghzo/zbnLA2T1jBVqj0aIUHhPFKxIGQXypKJvlOIVfKzy5JkOSETUQVxZWbFHpADwvq6Bjb02R6gGELdVJO8DBjc8fhzf+cZNIh0k/NP7XxsMp+3PdDdgW2x7P4z9iK1QtEvHAVN79lneqp5OXjDwX7Oo9ZWrCWNq/UzH7UZXCoh/QfOPypCRkwY6wO1z/egtiJ4r2HbKwRRfcU2HkgXSFseB9A42UUbTJqUbVjy7vbC2yi48c473TlfyNK36XTPaex5c+ayc3Lxzd3n+YydW9ixdbHT9ZgakvZ4iur2aDbUGMeYN2vFF1588AAcvQWvECZMSfvq4CFcIcKUYV9IQPJb55qtG38BAAD//wMAUEsDBBQABgAIAAAAIQBWvSukWxgAAJSAAQANAAAAeGwvc3R5bGVzLnhtbOxdX48byXF/D5DvMOAlQRyYIof/qdtdR7sSkQPs4HCSAQenw4FLzu6Oj+SsyVl514GBi3MKYDtBYkQHJ7YUXIILEh/yoPgSww/nL6SlvkOqZsiZ7hk2p2fY3dOtULpbkVx2z6+rqqurq6qrD75xPZ1YT5z5wvVmhxX7Tr1iObORN3Zn54eVbz8aVHsVa+EPZ+PhxJs5h5UbZ1H5xtHv/97Bwr+ZOA8vHMe3oIvZ4rBy4fuXd2u1xejCmQ4Xd7xLZwa/OfPm06EPb+fntcXl3BmOF9hoOqk16vVObTp0Z5Wwh7vTEU8n0+H8o6vL6sibXg5999SduP5N0FfFmo7uvnM+8+bD0wlAvbZbw5F1bXfmDet6Dv/11w8KfpN61tQdzb2Fd+bfgb5r3tmZO3LSkPu1fm04inuC3ov1ZLdr9QY1/ut5wZ5atbnzxEUWRrjm/YJ9daK++pWjg9nVdDD1F9bIu5r5h5Vu9JEV/uad8WGlZVeskMsn3hjo/mH1T6y3vv7WW/UPq28/Jl7j53/0vSvPf7sa/gO//7D6px9WK7X1g4he7W6H7rb+4dfefv89Z/zB4z+uP/4ao02XbvP+H1QHvXr9gzH8efz1x9YU/jy2wtc38IfRC8g8OaBwMBbjyyBV6S9HUIO2LLg9mG1kW4QUkub26Sfhi8cWog5fL3/5LP5wPF59+OKr+MPwVfhzOBySb1ff/sWz5brB5vH0Etysg0oA/tRWknB0cObNYoFotkHicJ7d/WjmfX82wN+BGgExwa8dHSx+YD0ZTuATGzsZeRNvbvmgH0BMgk9mw6kTfuP2P362fPGx9erLz26ffYpfPhtO3clN+MtG0PpiOF+Augk7bPTxs0DZrHqYujD1A6zhs2kEvWC4yh4XDpgY3t//dPnLj5PjarLGVds0hPKIeIqkXrMyoCTFymAYQlk5/O4GVlIo2imBEo9iq0CR3Jifnx5WBgNY0Ox6MF3UyfUGGP2TOiApQ95DqVhRo3/SaWtAjeagOYC1BNcY6bOfklBC5a0oglCaAy2gDO5172vAHJUwWMxZrUflz1tUIKp44pIaPS2p3QH+LVdSy7ETUgv3NruEuX5n2yWUNIb9kNaRosUsY06UuKSWNCtLM27W5lXSThVgNzYC8zle/f7sL17//PPbf3x+++Kr5YvffitplIbaYIOxvdkozaM3d5gvkfkZPC80NNzZ2Ll2YAuax7gXgSFB0K17FwHPC7Y6nNaLYBKvLJfcS5MAGMRU1ANFpJIs30VvSLV+x271+/1eq9uqd1vtRqeRZ1MrTBDLnQyBcJYLoZHQQUIVnHTdEqjVBTg83Mkk8rQ1m+hDgU+ODsDN6Tvz2QDeWKvXj24uwYMyA49s6O8Ivpfx7fP58MZuBNvmWvjVjAYLb+KOEcX5SWCZrCbhSefB4ORB8FwCGXiIdul0MDjpSuj0wXH/RDzSk34g8zWBw28M4K9gpPfa+Ff48IFVwmi60qgtUSCj/lYaun6ni/rZ7vR6vX6rabdaAZFPVxId2Q8dYWRKI2gDgn6z1+80AEi91QsepRRBEwB02+1e2+43WvB/sEjJRyCapuBqDtfd0rhKICiJqwSCkrgaeNJEqL7VTIEoT8lcJRCUxFUCQUlc7QrWwBCHK5mrBIKSuEogKImrgekqcK5CXLRkrhIISuIqgaAkrgozPlcaGALYJXOVQFASVwkEO3M12AjBfu7Um48hsWadOwGB9fVnRwcT58wHD/zcPb/Af33vEn6eer4PmSdHB2N3eO7NhhOMu4e90C0hIweSbw4r/gUkz6zD6rExG5rT+IjVE7i+H2AJoHB9HSCvEXN9Pxyc+LGF1MsLmYPINHskPkAyd3IMNScSmSJbjK1CJXE3AZAC5c2fyJFMSWSl3GcUnUQaaNE8E5qxehGjGH0UrU2Un2enlWDlhIzj07WsdS7dImOlSzfIWuvSLUSMMc4W4R0j0YJvjEQDzjESLXjHmCEpY+8K0nUjUYlCPZC3GTiqwAJCs4jfctjc4XZqZrZJ0zOzyQaKZrYRITfHDfwbbOg55wbRgk9uiAacckO0KCY3G9UjpVey6V1IDRVTdNGWKhEgDNgiaOZMnbF7NU0r2ejZG7cyuefTxdCd59llbP3+7ruMrd3nnT95x7Z1x6XJ2NYCu54xJvFDsx1tqbKWk29bvy57ty55HpUyth3nUan8kDyPjBhb6EJIbfZMmNN6geZc9OSC5pXo3RxHQoSjoOKQQ78M81XobJCkdXQUrLwa8E22JEyyyEvhm2JLQqgSo/VpqWKvmVFTiuosxg5olRVT3HXR4ngE14aUcFklDDj5T+ACmNd5s2s8oBTtKl3MlMlxTo8Nr4JTMKOkBIR4N+qJuacgsFrqHp8Wx60ys8GVosEU5YUsT265RIQgnjR1zqXFZTnEksuoJPVTarDYRMdyPr2XV5Z1MBxKxcz18A3RyK1sScdTjNh1a7BjUqyFSnUiSRahrQpcTVKjYsvIWm8V70NFp7CYE87cYru3HawCrgeusaYyZRmjWM+MYgYfYbNIRZdzz6gbkYuJChA3lQGtQAaUPzYnc8XjC9PP8zKpoNUncEOtmZEhYQNTcN6X77TgEg7ezV+kur99KWr5kbqEClJS5Gg3L1OmjkKy6uCaNUlTTSLTJM9ipcNdnT+C40wjZzJ5iOeOvnMWnWnq45mm6zOibGtQ0XTmY11YfAmFKVYvw3NM4Zujg+HEPZ9NnRlU83TmvjvCGqEjeOuEBTyvz9jdNlR3C3ORNUQzsGwZQItJTGt4eTm5+fOr6akzHwQ1nAOOBp9iKZL43XFwzi1+f2/N2/ijd+ee74z8oMZ0HURmB/bDCfiNUmU3K/yQ5ULEwsUrwQcBIQV/G0K1ZMRCySuMQDg9MWIZ5hVGkFM9MWL15xVGkMwYow2It8wguQJoE6oXhJFABRjLQ4WVpVe0olGVSiuWDrcBI7cOlMxPmKJrysHEJfgJ78rjp3mLB0FHUC4EHeHdNl5DLXNV65vNWuBgTmu6JONM2bwmg3bUZArtDZ21/Ai0xfaGjhibdm/oFNwL7g0d/n2zvTd0ikrZ3tCRsHjsDR0p/pG9obM3dPYenR0cjHuPDrcrHu7K2Ht0CgUx0Fu99+jglZM7hgP2Hh2MswVOFoEbexM8OjaxawYSxM48uA1AG8ctsZjQGEFz6uJcZmHU1+GIHF5rT0CvZ2SI0EzoptAfJIikniBJdqMXwwCU2lrgpFRqG1QlQVJR1e0qSW0EnZJKKp6pLUoqdqgTSpLhVGBOV5DarjqkVOJr/XUlXEei/+IIV+gZAFLbVYeSSm2XHQqltusOoSsb2i47JEhtVx2K39ouOxRKE3Y7TRN2O00jdjtNfXc7hOs3B7/3mcO1bbnt+4SafULNPnN4Gh0fgbxLPDGyjzMVPSyzjzMJOnayjzP9v4oztdC8WWkfgvUbLZ0BlR2u3MLB8I22SGvkqcHwDCFxfBAu5C10ftC6PhNwkNAmzkAlGbt+QBikCzmMZx13Obe4JTNLi8eFYyVOsmQM2Pr+fHj5yLmGoxHhRS1bT21uOdZg5uh9GPl7nj8MTzU22uF1x1tpwJIADGptJkLIk3VgYx00lsUjFj74XGd4IFp88OTMX+7Hy51gTOEC3VYmeWB90ll4MDavNT6Y9G8GPjmzrwnmWZni3QQrQsXzWeunquez1At6e0vVvor4n9t+ydD2F97c/QHY7UTlC85aGHaXMPkbmbh6mw9hrm2JtW2b09IoDh9zt1b7FfPA213cNKzhc1v0dBmNJOl3Uoyo/xhlVrbOS6YNuYtg8hAnveBup84OghkUEK0UKDHDYqwoO13M7GGqZEEWww6SgNCyZgkEO+iFQ5ocrCoL8epXHvCpVd8k8BDr1pLy5NIgey8qdwqKMtrfIJT53EUs9qeUhkz7RRBk7h1CDpMRK/JuWNkEIU4pCAFUlotYlJeBnHBSEXdF+R3UIZah1OTSWIa9JgQxczdfuunGsz1rK9XCUL5wa9IMcxcJLnkxrrMdDOEeEUhsMG2alC7QxZrkgt/U1Z4ko7hM4mMSrbHWcIfb+yXCHWUtLubu7KNH3sDlC/oxBV6pfSwMdkdUIIxLoQiDnWFpSPAE8TgoY9Htr0/50FZmmEmxdpZxx0CLK2se1KhSQm1hEupYcE1C3Y42TkahjlSyUaijNVwX1DyGaEfGJiqft5DLXla6bhS2lzt6ea1YeyS1Nk9hasYrxeblTcGCxjWFzJDNlhkzPb0VKjW+yowQyXDwFdebLJhtpfE2Yfa2sJQitdsEPGUhJNNIHGyby//Q0NX/wAnfZAeEZnpZi8B9riAMrtGbbslJOXZie2GnfBHW81JmgOTnpXOeJT+QMCCkEDDlbJY8nlTESzbDUhaY7Aem1iNBD2S6goXl4csN25cf1uDZWCCV1ZkTmds0ZkKBWhsz15kZPcz37OUsn7t3vR3WJMaVz+trIPh01MIgysc+YAMp304ZcSZR3uQswfSWUEs/TDr2rCVMvdI9mKuijBywfE4trrUkZb4ZpBRSewAe7CUFmE2mc0tXnxCPhDeNpryumf3knoulAtVuYMUkG2cEdnZTHmIgKl1YxEBWHIMQsq1NKz39k/vTuk4fzKz6Jlj7ULNAD49yUysehR1KaiWiOEyt3HNNpntOaYJrFjWZMPVK9mDD1CqLgg1TaXpCrgWXjbn83SehRJkw24ZIgFYuByY19dL1bNmUcQIxn2cEqxRkHgiPdL1uNSt40MdLgJHoI72gc70QputPqVYTdMhWK8uGfTZNq6RgtiYu35y1u1i+O6u0TTp7OZ/7N3/uCh+utAWrB65do5e7FdfRY1uSNzNVk22KONhq1TvPKUe7i9dPric7y9PS0iCGysUFzuGk9jjqQ1cCh5PeC5k9nFQmk9HDUVgnjLmVEShs6ex6TbnD44pVfDAjM7pAqy/mcRJti3ZRiwkTvq7ZRHzU1/aUBo/Aa+XcY+cva+XcY8M0ozoaf2Xb3et26RVtYpQ4KgyypbAC2kaQwR16We7HNL+lrdB5CMyHXd3SJlw4FJYVK35KQIZ7STQlOzKCJqJBpnOi5dUWLMzutsICiBtB0j47lkWYPnypWmNZ7mzszNjFoPjGobCAGKt6X8Y4uPJTZFhf2XiFHVuXUrtAIX4pOf8q8StU38S8FVfUTUcvLZmvnO3MzxX7VF6fjL74gbkoRPbUGzGaYnHpEnhDBP/w2ubNh/q1rVRBxi7Z8DXw/xe36ZQmwQjTqlLs5d0c3jzGkNoDeJx+ep7FID5w+iaoz1h63oTRxEKl92i4XDZG1x1ulJ9RyKWFlJbKEJMX1jKwIEVDsxNSfClP6QolertPWAUxG+oC/wXdJ1QhdmZdz7SpL7wgdOHLG7hG0I68xNH6ZNgI4hKwGo6AM5Ex5YYwc1br7xTlm9XppH7D5sSGxH7TZrXOeklN2rT4u7fVpFWXhVty0agnztx3R+Tdt7lOkJt252mhJUnGDa09nl3THm14LbPo0Lfau3rElGRQWilACGTFZayFYM6InHFpAtHSKqWCCGv/5TvX/nueP/Rdb3ZYacDNbZl+foy3bCqcXCYtWZhU0rJwgEQrkKwTNXrdwM1EaQhMvY6gsqipV/I1k+d6VUlkwtTLc8+EqVV5Ggx38FXpL7V+J5OYel33woKptmZZ5jrJpKZe9deZMM04s6K4GJmY+utqU0nEYDbk0I2ZtekwZcqAyw6wMIBwmMLdJDodCMFT/huv59HL2sPMJgNg8h9k0PBQiMr8+MxChOjH3cRwtdkjxU8EmugLVbolEZNM1Fa7nIqxVAwst9w0Ix+updfWhbkcmEFNtXOrgIucWUnCkAs9zChnEGd9Ad7h5eXkRs+7ZvTyqLGyACH0o7I4ea4Vi4VZY2OGSWalKiCfMcPCrPP9AEzRMFGcDTR005X29L87omWGh1avkuHMqkJqa5Jl7nyZjiO9bFsWTL0uNMCDXxvdHek0xVJtLyZMvQxuFky1Z00LTyEp1VnylbMn0iixbNRG2VR7KCqTmkyrSqvIhR62X2Fianb5D9MqNWMv2NIrP4kpm3rZcSyYWOKh5BglXcGESc8oXUW3uyg48UfyYCb+WFB0vguEKT3lG9icBXHJ+fi9K8933p07Z+71YQUcy4EfUZOLgQsMRy/4PHU/qHIMenMj93B04gbPASS1Bn7uUj3mrVsk0bOtGBO1vtlrVuxiM5H2UurOFt6PN5ghDzN2E2orZzGqz5JLDHM/ERlahpq5hm8zuoZvMwpWWjv25mNnHhvJMo5JI2kzb3IrWFtNG/wFq6kpwM9jrnS11T5c6LXVPVzotdU8POixBkLoBzPR2NIg05DPCxZfdGmoF69YHWVt1Ht8OYCRewpt74Lm2ktrKztc6I1WkHFKgMZyj6cetatewdw4a5yQz8KcrolZamIIE6YZPomOXscbmWFtQwKxZkTfu2bIZldphm3hzJCOGTDTVcn11Jt6ZVEyFZJeU4h5AY4Z54HKSU+sjZzJ5Dtni6MDfPHQv5k4C2vkXeGtZ327QnxszYZTB6qX1f/QqlqvXn66/NeXy7/+cbQVwATl0yt34ruzd8aHFcwbHF0tfG96HH6ILk1QL9FTNncXrcRtYBrZHTC3QHeRgHYADtkdOKgKdBetbGiFE93hseQC3UU6swNwyO5g7AW6i8S8S7MCw2883bVYnAUqkrQDlhfoLuYsKDeyO6BCge5izgIcsjswkgp0F3MW4JCsgOcU6C7mLMAhu4OxF+gu5izNCjz/zNNdh8VZWoyxzEeB7mLO0mLc5BTjBLqYs7QYo8enALqYs7RGaXFqlAS6iLNdWqPgCZ0C6GLO0qxAbcrT3QY9TM8HTNPO1VHMTXomNDlnQoQo4mObngPo4s2FKOYgLf14iCNXR/GspFUQnhvP1VHMNZrYeOSJq6Nf/+7Vl5/d/tdv1656XC0JNYFFXi/cMdw9ylg1XyU7QGneqQObnh35EfRoccEOuEjx5SfLH71c0wFZSgwD3Rzb6UC1xjp2xVvbtHTlfHaPVlbYmmf4tz/6p+Vf/WckBokBwNutw6dbNxIDyNeanqRIyhyP7tKaH1tzjf5Xz26/iEaP05CUYZgT2yFQrdHnWLy1TVMea/XleHYvMXk4V6rbl/99+5tPls8jCvRpNRCUCU4azLdf/s/rv/nfSGIShIe323FTrfG0ITlh8rVGIhVvjUkIidY8IrP85PPbL55ar5/+3fInn7/+SaxBEzYvzIWthGD1g6ewCVi4KSvUj00zpnA/PVowsR8uMj392Hr9z58uX0QEQkOApHfmwFI94HmV3Xqw6RmOCms7cVMYegmJ5SXHj796/bPn1vv1D8jgODGYzqa96fLnL1/9+uXtPzy3lk8/XjfEvBKSCgBo+xg2dYIbxp07sRO0KISkl2Aqp1W8/MWz5ae/i5btxLoFbN5OE6o1WpYkMfK1thNyna91L8FNTktw+S9Pbz/790gJJyBkLR50a8zoJIefrzXaWcVbY7JIojWXdvns+e0Xv4qGn7A9MzlAtcbbJMl1O1/rxMKbrzH61hOP5h+9FXm+8FQk2Q1g2i79wfjj9o2E5ZK3fcJ0yd08QUPOXfsyHEW0XcQNMEkFThNw1U20WcQtFNkN57Z61U20VUSfF9kN58Zs+W8/Xb7420iwacpg8GA7Y6nWuAUg51a+1gm9lK8xZg8mHs0l2L95Tmg19LeQnWTtSZdUayRW8dZ2gnb5nt1L6ETOrShYCMvPo3WeHn19k30QNrCiKYAaYX73ygX391/WV3+q8G8bf9TjH+1O+Msfbus07hb75+q2m91tNM/wBVenvexOo1mHL7g67Wd3Cko1TGPEF1yd3iM6DcIaYTTj6GB8fRbFNAJG+sPTiUPHOoB3Y+dseDXxH0W/PKzEr7/ljN2rKaiR1bfedZ94ftDFYSV+/U33/MIHV8rRQfyIVaDjndkTd+HCcyvWJbY9rICEBd8KXq1CLvDZ9byfliHbDsVnAH+q+GMtX4EM1YgBHR3AZTPfXPjBv9bV3AVhfHDc7d9/MGhUe/XjXrXVdNrVfvv4frXdOjm+f3/QrzfqJz+EJ08ns8Xda7t1WLnw/cu7tdpidOFMh4s7U3c09xbemX9n5E1r3tmZO3Jqi8u5MxwvLhzHn05qjXq9X+vXpkN3BsOHTu4uJvCt+YrMK7I9jD87rBBvQsIF1+IAfBJ7v9Gp32vb9eqgWberrc6wV+11mu3qoG037ndaxw/agzaBvV0Mu12v2XYMvn3Xd6fOxJ2tpWQtG+SnIB7wdssgamtO1BYYV3uIlDr6PwAAAP//AwBQSwMEFAAGAAgAAAAhAGA2XrohCAAArzIAABQAAAB4bC9zaGFyZWRTdHJpbmdzLnhtbMRbb09TVxh/T8J3OGmy5OqKbVFRCdRg1W0RHVHEJWYvCFYhk5bRavSNKXgxFTC0s4WCBS8TpZia3fEvJWFfYR9iL3vO/Q77nXMuWDLKyJ5eRwiUkvv8O8/ze/6ddlx8MvyQPY6OJobisU5f6FTQx6Kxgfi9odiDTt/t3qst530skeyP3et/GI9FO31PownfxXBzU0cikWR4Npbo9A0mkyPtgUBiYDA63J84FR+JxvCf+/HR4f4k/hx9EEiMjEb77yUGo9Hk8MNAazDYFhjuH4r52ED8USwJvudbfexRbOjnR9GI+86ZC75wR2Io3JEMi/VPTr7gmDY3M4Z4t3uCicVd+W1lqusp+WI11RFIhjtGBiFjcmigZ5Tdj8eS393r9LWCcPLpCCSPxSPxmKupLxDuCEjiLoPFXcbEUoa11yMT+ncq0hrtiZH+AfCCuono6OOoL8zHLZErtTOSfNV1u7mpuUkslWlqanstZWjC2Bk+MyHekKgcbixhmdWKLfJp+WIzxT+U1aGQjHc4J9p5hE4d9MDxspP/RDua2axTqNR1v2N58Z9vG+EdCzmiFDmSFHw7zd++pInwA82/t8ps/4tvmyRi8IvPxOq+4h/XGnB0QInqxi7N+jsmq25YRGFkEAOtzBW+Q7MeYIBb7+mE6mBA96Vbftbd5WfXv7/qZ32RS37WFbnExHwF4COejznPixRL1OEq0gWpl11gVXtM/DrB+MYmYr+6YWr4Y9yeYcIu8akS7Mj4zLxYynomjTO5gwMX+bwUSHG2Uu5fyKpiqgi5voAYfENylYy09f1MvJgWi9P4vWpKE3h1GtcjEaW5t1bm2ylUMNqRmbDGhJXH6aekYkWLlzc9cDOeVv60/gfcq5EHGEZQ4zTgq56UAPDBohsHYs7m76alHkVLu6a3gVnDubCCqhJIuFWtvOSy1qwwLYdnfqitWiPCdl6aeDXFxPaafKUCQJkBwICySCzbYslkX0wgZymNCtxrOLrdc4vBW/nke74B5b4gAknOCEvYUyOu9rhDT8GDaNXcTXmuVlZsvlQRizzgvC6JD2lUm5sy5rwCQcV9X9UD/qVSwrjtzOfo3MPwWf5xwrN87pK3imJWQp6hO0a/BNrlIn/9+wkmc+qGqVzLyiDD4E3vIkizBwu/wnolglgs7OE/ulf8z7Mz1f0TfJlpsyhVLdlZNeIglY0bU+MtoZ2cF4qgF9WWLiFrmDAUNWJyxZkoNgzMwmIlK/LzVTsD2qqc+IjyTeKlcbm7x98duSxHFjKEmc73zMkWpRheBXRPd0QWUE7OdCYr4k0JAeE1cu8Vs69saCozBX7J4t2zMlpjifIbhdWIeFU/vsFQCBlTgkADPJ3baxi7NMTT9ZkjDj1wc9f6+yzcMtqt6D8DDXNBkY9vskikt48580WxsHaC1vGp6JIpQlrKeZ6ReZvc/dVrn2qY1bJisq+asuT8CBirQ9E751vJ6r7IkIxWU+B6QrJ1XmxBBm31wopbSIi5Mup/al8OXaqqmPfMsroErWXyP9lUVsHqJD21qU7PaC/F0gTiWzXcEpPNFW/SENol3VB4WHF45H6tp9g/+pOFTZQSNKfe6/Ro4zrdRmNQYdPEgePL7MzEeJkBEhnGkMz4y3xNw0bZzMzMw7/GyyBOg9n1Txjx0UyummnaRFP1gTRF1EiHmHImMLbCEdGooLXHuSyskQlpKmkTWYGoV44sC7niCuvZG00RtdCoR+IY67TwaSxZdPHemCM6SKu56e5PdwZ/pEGP2hRQVwRiq8inU7J6WaCtTqqVtNyFFi1noURFCfixBEIdGoZ4kyNWiHOfRLH0FcUdkID2NhO1m1u0s+uk8WmY2zZka2fnWoMU+dzhwwJxk7O4i/4xgJQheycqsSP35gy7KSye1DBkvYQKFcMnzFupEUEOB7WkRn9C1r6yjHle1f5Fl+MYl+4U4NLUTe3+toRkKCybUBPUjDebm+QCqLIMeSmE6zRNe5vH6hZaEbO5qafrxpVu9SYN5C0TRLC4YXev9dGwFFAPUvx9gd3tolGqAYr/eh/kZsstkl1utfSSnu9tuUl6nvY0TXeS5nXc99u+llDwjHEdV4ZIeego8mcNjeCeMWgzkJ0B7p4xOGfotEFM1Xv7X5IHYo/uCb6FNU4oyKEhTr07AdLVQgd84XO5cdQz8J+a4z3eM+cPnFhNWYOFDA2Y9XAUXSwoNTedDbJrfV3ExmQCFQmNxHaRTEKZWHbnSq82ul644yFms9XNrJjLcDONlCzN9dMdSinY0ye3LPm80Vc3FI/TACkyyIhGF5WMMrxxh0RGKCINUWyfFF05TYqomroqMYa+27gzSLKRS0jNtUAOs/D8Gso6KtnDfPQ00UdrNqHmiq6Tm5sMnstx+xX6bneFSrLGZSYv62IsJ1evlHgKPQud1/KCIpBtBjdbpIDsXNAfDAaftcmf3Y+ekJhcvwHigJeP2B/sSreiCn3hUJFDjZBViorrANg10oSsk89ag/uiN4JL+IrH4oYaK+7+fQGCz9ZbXqkxteu9Bm5muR3q16GzAdQdJAd2CthklHV8oIs0Hh4REMe7Fa9CDfiFcqgwxl/hiuCaM/ueOA/HhX005vRxvavohtlqODOyq2+IdHqEhvuWcxOkWoevZnF7kQJ61Z0U+mFc32B8eZFC6CSrtY+6FoBNrWU6+RLqQtyx579VcEuAVbcyGKWxFoZpJP9Q9x7xcSqXk+wbdZtKfjwDBEXelJcBcjl8EsKZqrvBOJpyAB84Cf8NAAD//wMAUEsDBBQABgAIAAAAIQA7bTJLwQAAAEIBAAAjAAAAeGwvd29ya3NoZWV0cy9fcmVscy9zaGVldDEueG1sLnJlbHOEj8GKwjAURfcD/kN4e5PWhQxDUzciuFXnA2L62gbbl5D3FP17sxxlwOXlcM/lNpv7PKkbZg6RLNS6AoXkYxdosPB72i2/QbE46twUCS08kGHTLr6aA05OSonHkFgVC7GFUST9GMN+xNmxjgmpkD7m2UmJeTDJ+Ysb0Kyqam3yXwe0L0617yzkfVeDOj1SWf7sjn0fPG6jv85I8s+ESTmQYD6iSDnIRe3ygGJB63f2nmt9DgSmbczL8/YJAAD//wMAUEsDBBQABgAIAAAAIQATxCwTwgAAAEIBAAAjAAAAeGwvd29ya3NoZWV0cy9fcmVscy9zaGVldDIueG1sLnJlbHOEj8FqwzAQRO+F/IPYeyQ7h1CKJV9KIdcm/QBFXtui9kpotyX5++jYhEKOw2PeMF1/WRf1i4VjIgutbkAhhTREmix8nT62r6BYPA1+SYQWrsjQu81L94mLl1riOWZW1UJsYRbJb8ZwmHH1rFNGqmRMZfVSY5lM9uHbT2h2TbM35a8D3J1THQYL5TC0oE7XXJefu9M4xoDvKfysSPLPhMklkmA5okg9yFXty4RiQetH9ph3+hwJjOvM3XN3AwAA//8DAFBLAwQUAAYACAAAACEAVJpslTsAAADcAAAAJwAAAHhsL3ByaW50ZXJTZXR0aW5ncy9wcmludGVyU2V0dGluZ3MxLmJpbmJgoAwwsjAw3gEawb+fgYmRgZNhFrcJRwoDIwM7QwQTE5COYGIGyjoymFBoDz7tjIzYZQEAAAD//wMAUEsDBBQABgAIAAAAIQBUmmyVOwAAANwAAAAnAAAAeGwvcHJpbnRlclNldHRpbmdzL3ByaW50ZXJTZXR0aW5nczIuYmluYmCgDDCyMDDeARrBv5+BiZGBk2EWtwlHCgMjAztDBBMTkI5gYgbKOjKYUGgPPu2MjNhlAQAAAP//AwBQSwMEFAAGAAgAAAAhAKFcuxWzAAAAAQEAABAAAAB4bC9jYWxjQ2hhaW4ueG1sbI7LCsIwFET3gv8Q7t6mtvhAmhYfuBVEcR3SaxPIoyRB9O8NSuvG5cwZDlM1T6PJA31QzjKYZzkQtMK1ynYMrpfjbA0kRG5brp1FBi8M0NTTSSW4FnvJlSXJYAMDGWO/oTQIiYaHzPVoE7k7b3hM0Xc09B55GyRiNJoWeb6kJgmgrgTxDLanogSiGBRluQKi0x2gA9sVPzSUt0V6+90vx+X5X3kYxZ8hHc/XbwAAAP//AwBQSwMEFAAGAAgAAAAhAHo2NlePAQAAFgMAABEACAFkb2NQcm9wcy9jb3JlLnhtbCCiBAEooAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHxSwU7jMBC9I+0/RL6nTtItolYbpN0VJ5CQKALtzdhD8ZLYlj0l9O+ZxCFtV4ib37w3TzPPs7p8b5vsDUI0zq5ZOStYBlY5bex2ze43V/kFyyJKq2XjLKzZHiK7rH+crZQXygW4Dc5DQAMxIycbhfJr9oLoBedRvUAr44wUlshnF1qJBMOWe6le5RZ4VRTnvAWUWqLkvWHuJ0c2Wmo1WfpdaAYDrTg00ILFyMtZyQ9ahNDGLxsG5kjZGtx72mkc99hbq0RO6vdoJmHXdbNuPoxB85f88eb6blg1N7bPSgGrV1oJNNhAveKHJ73i7ukfKEzlCRChAkh0IREToJhfYd+5oCMxJ4h6NEQVjEf6vNR3UiB1IyPe0G8+G9C/9snh/xrJAryZ/gKS4IC0GjJLs4HOKAWRMvtkHua//2yuWN1/ZF4s83K+KUtRLsXP5d9+85P+PpVUaMeZvnWsyHGeV4tNcS4WC1FVR46fBvVwiBJh68K4n5rQcKMW6UjuUOJuTFC5L0rHl1x/AAAA//8DAFBLAwQUAAYACAAAACEAcA0l2/EBAAAeBAAAEAAIAWRvY1Byb3BzL2FwcC54bWwgogQBKKAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACkU01v0zAYviPxH4IvO7VOwzRQ5XgaHWgHJiq12xUZ501rkdiR7UUtJ5B2Ghx2GCeKxAkunBAH/lOz/4ATb1nKpwS39+Px4+d99L5kd5FnQQnaCCVjNOiHKADJVSLkLEZH00e9+ygwlsmEZUpCjJZg0C69fYuMtSpAWwEmcBTSxGhubTHE2PA55Mz0XVu6Tqp0zqxL9QyrNBUc9hU/yUFaHIXhDoaFBZlA0itaQuQZh6X9V9JE8VqfOZ4uCyeYkr2iyARn1k1JDwXXyqjUBg8XHDKCu03i1E2An2hhlzQkuJuSCWcZjBwxTVlmgOCbAjkAVps2ZkIbSko7LIFbpQMjXjjbtlHwjBmo5cSoZFowaZ2sGuaTJs4KYzWt3r25fPW5er26PPtGsIP4chN20d1YbNOoAbjgj8CrL95/XX88DapPL6sPb9fnq2D95aJanf7/b7VcP7iTsWnJVNgMzJN0zLT9m0ONSu+PFxxG0b3eoKuv9aVp+eGvjGpbW/7Z1p2xFtI+3dPAfknhcdHvcBtD/TDGIZNsBtpN20YjlRdMLl2pjR4L+dwcFVO1zyxcL89mkUzmTEPi9q1drrZADtze6MyRPHBLVDu7mbepGc2ZnEFyTfFzo76EY3/udLDTD++Gbsk7NYJvDpt+BwAA//8DAFBLAQItABQABgAIAAAAIQBgknq+gAEAAAwGAAATAAAAAAAAAAAAAAAAAAAAAABbQ29udGVudF9UeXBlc10ueG1sUEsBAi0AFAAGAAgAAAAhALVVMCP0AAAATAIAAAsAAAAAAAAAAAAAAAAAuQMAAF9yZWxzLy5yZWxzUEsBAi0AFAAGAAgAAAAhACef/C29AwAAAwkAAA8AAAAAAAAAAAAAAAAA3gYAAHhsL3dvcmtib29rLnhtbFBLAQItABQABgAIAAAAIQD+aepXCgEAAMwDAAAaAAAAAAAAAAAAAAAAAMgKAAB4bC9fcmVscy93b3JrYm9vay54bWwucmVsc1BLAQItABQABgAIAAAAIQC4ldSHBUcAAPTRAQAYAAAAAAAAAAAAAAAAABINAAB4bC93b3Jrc2hlZXRzL3NoZWV0MS54bWxQSwECLQAUAAYACAAAACEA/k/B9+pAAAB7qAEAGAAAAAAAAAAAAAAAAABNVAAAeGwvd29ya3NoZWV0cy9zaGVldDIueG1sUEsBAi0AFAAGAAgAAAAhAMKH2/J9BgAA1xsAABMAAAAAAAAAAAAAAAAAbZUAAHhsL3RoZW1lL3RoZW1lMS54bWxQSwECLQAUAAYACAAAACEAVr0rpFsYAACUgAEADQAAAAAAAAAAAAAAAAAbnAAAeGwvc3R5bGVzLnhtbFBLAQItABQABgAIAAAAIQBgNl66IQgAAK8yAAAUAAAAAAAAAAAAAAAAAKG0AAB4bC9zaGFyZWRTdHJpbmdzLnhtbFBLAQItABQABgAIAAAAIQA7bTJLwQAAAEIBAAAjAAAAAAAAAAAAAAAAAPS8AAB4bC93b3Jrc2hlZXRzL19yZWxzL3NoZWV0MS54bWwucmVsc1BLAQItABQABgAIAAAAIQATxCwTwgAAAEIBAAAjAAAAAAAAAAAAAAAAAPa9AAB4bC93b3Jrc2hlZXRzL19yZWxzL3NoZWV0Mi54bWwucmVsc1BLAQItABQABgAIAAAAIQBUmmyVOwAAANwAAAAnAAAAAAAAAAAAAAAAAPm+AAB4bC9wcmludGVyU2V0dGluZ3MvcHJpbnRlclNldHRpbmdzMS5iaW5QSwECLQAUAAYACAAAACEAVJpslTsAAADcAAAAJwAAAAAAAAAAAAAAAAB5vwAAeGwvcHJpbnRlclNldHRpbmdzL3ByaW50ZXJTZXR0aW5nczIuYmluUEsBAi0AFAAGAAgAAAAhAKFcuxWzAAAAAQEAABAAAAAAAAAAAAAAAAAA+b8AAHhsL2NhbGNDaGFpbi54bWxQSwECLQAUAAYACAAAACEAejY2V48BAAAWAwAAEQAAAAAAAAAAAAAAAADawAAAZG9jUHJvcHMvY29yZS54bWxQSwECLQAUAAYACAAAACEAcA0l2/EBAAAeBAAAEAAAAAAAAAAAAAAAAACgwwAAZG9jUHJvcHMvYXBwLnhtbFBLBQYAAAAAEAAQAFAEAADHxgAAAAA=';
+
+
+
+        // ============ HMI Report 엑셀 데이터 가져오기 ============
+        let excelImportData = null;
+        let hmiExcelFile = null;
+
+
+        // ── HMI 엑셀 업로드 ──
+        function setExcelStatus(message, type) {
+            var el = document.getElementById('excelStatus');
+            if (!el) return;
+            el.textContent = message;
+            el.className = 'excel-status' + (type ? ' ' + type : '');
+            el.style.display = message ? 'block' : 'none';
+        }
+
+        function handleScadaExcelUpload(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            hmiExcelFile = file;
+            var nameEl = document.getElementById('excelFileName');
+            nameEl.textContent = '📊 ' + file.name;
+            nameEl.style.display = 'block';
+            document.getElementById('scadaExcelArea').querySelector('.upload-icon').style.display = 'none';
+            document.getElementById('scadaExcelArea').querySelector('.upload-text').style.display = 'none';
+            document.getElementById('btnExcelImport').disabled = false;
+            document.getElementById('excelResults').style.display = 'none';
+            setExcelStatus('', '');
+        }
+
+        // ── HMI 엑셀 파일에서 데이터 불러오기 (범용 자동매핑) ──
+        // ── HMI 엑셀 파일에서 데이터 자동 매핑 (범용 방식) ──
+        async function importFromExcel() {
+            if (!hmiExcelFile) { alert('엑셀 파일을 먼저 업로드해주세요.'); return; }
+
+            var btn = document.getElementById('btnExcelImport');
+            btn.disabled = true;
+            btn.textContent = '⏳ 읽는 중...';
+            setExcelStatus('엑셀 파일을 분석하고 있습니다...', 'processing');
+
+            try {
+                var arrayBuffer = await hmiExcelFile.arrayBuffer();
+                var zip = await JSZip.loadAsync(arrayBuffer);
+
+                // workbook.xml에서 시트명 목록 추출
+                var wb_sheetNames = [];
+                var wbFile = zip.file('xl/workbook.xml');
+                if (wbFile) {
+                    var wbXml = await wbFile.async('string');
+                    var sheetTags = wbXml.match(/<sheet[^>]*name="([^"]*)"[^>]*>/g) || [];
+                    for (var si = 0; si < sheetTags.length; si++) {
+                        var nameMatch = sheetTags[si].match(/name="([^"]*)"/);
+                        if (nameMatch) wb_sheetNames.push(nameMatch[1]);
+                    }
+                }
+                console.log('시트 목록:', wb_sheetNames);
+
+                // xlsx 내부의 sheet1.xml에서 데이터 추출
+                var sheetFile = zip.file('xl/worksheets/sheet1.xml');
+                if (!sheetFile) {
+                    var files = Object.keys(zip.files).filter(function(f) { return f.match(/xl\/worksheets\/sheet\d+\.xml/); });
+                    if (files.length > 0) sheetFile = zip.file(files[0]);
+                }
+                if (!sheetFile) throw new Error('엑셀 파일에서 시트를 찾을 수 없습니다.');
+
+                var sheetXml = await sheetFile.async('string');
+
+                // sharedStrings.xml 로드
+                var ssFile = zip.file('xl/sharedStrings.xml');
+                var sharedStrings = [];
+                if (ssFile) {
+                    var ssXml = await ssFile.async('string');
+                    var siMatches = ssXml.match(/<si>([\s\S]*?)<\/si>/g) || [];
+                    for (var si = 0; si < siMatches.length; si++) {
+                        var tMatches = siMatches[si].match(/<t[^>]*>([^<]*)<\/t>/g) || [];
+                        var fullText = '';
+                        for (var ti = 0; ti < tMatches.length; ti++) {
+                            fullText += tMatches[ti].replace(/<[^>]+>/g, '');
+                        }
+                        sharedStrings.push(fullText);
+                    }
+                }
+
+                // 모든 셀 데이터 파싱
+                var cellData = {};
+                var cellMatches = sheetXml.match(/<c [^>]*>[\s\S]*?<\/c>|<c [^>]*\/>/g) || [];
+                for (var ci = 0; ci < cellMatches.length; ci++) {
+                    var cellXml = cellMatches[ci];
+                    var refMatch = cellXml.match(/r="([A-Z]+\d+)"/);
+                    if (!refMatch) continue;
+                    var ref = refMatch[1];
+                    var typeMatch = cellXml.match(/t="([^"]+)"/);
+                    var valMatch = cellXml.match(/<v>([^<]*)<\/v>/);
+                    if (!valMatch) continue;
+                    var rawVal = valMatch[1];
+
+                    if (typeMatch && typeMatch[1] === 's') {
+                        var idx = parseInt(rawVal);
+                        cellData[ref] = sharedStrings[idx] || rawVal;
+                    } else {
+                        cellData[ref] = rawVal;
+                    }
+                }
+
+                console.log('엑셀 셀 데이터:', Object.keys(cellData).length, '개 셀');
+
+                // === 데이터 구조 초기화 (전력사용량만 추출) ===
+                var data = {};
+
+                // === 다중 시트에서 전력사용량 추출 (P1→전체 누계, P2→조명 누계) ===
+                data.power = { all_acc: null, light_acc: null, all_max: null, light_max: null, all_sum: null, light_sum: null, all_pf: null, light_pf: null };
+
+                // workbook.xml.rels에서 rId → 파일경로 매핑 구축
+                var sheetFileMap = {}; // sheetName → filePath
+                var relsFile = zip.file('xl/_rels/workbook.xml.rels');
+                if (relsFile && wbFile) {
+                    var relsXml = await relsFile.async('string');
+                    var rIdMap = {};
+                    var relMatches = relsXml.match(/<Relationship[^>]*/g) || [];
+                    for (var ri = 0; ri < relMatches.length; ri++) {
+                        var ridMatch = relMatches[ri].match(/Id="([^"]*)"/);
+                        var targetMatch = relMatches[ri].match(/Target="([^"]*)"/);
+                        if (ridMatch && targetMatch) rIdMap[ridMatch[1]] = targetMatch[1];
+                    }
+                    // workbook.xml에서 시트명 → rId 매핑
+                    var sheetTagsFull = wbXml.match(/<sheet[^>]*\/>/g) || [];
+                    for (var sti = 0; sti < sheetTagsFull.length; sti++) {
+                        var snMatch = sheetTagsFull[sti].match(/name="([^"]*)"/);
+                        var srMatch = sheetTagsFull[sti].match(/r:id="([^"]*)"/);
+                        if (snMatch && srMatch && rIdMap[srMatch[1]]) {
+                            var target = rIdMap[srMatch[1]];
+                            sheetFileMap[snMatch[1]] = 'xl/' + target;
+                        }
+                    }
+                    console.log('시트→파일 매핑:', sheetFileMap);
+                }
+
+                // === 터널명에 따라 전력량 시트 열 / 누계 시트 분기 ===
+                var tunnelName = (document.getElementById('tunnelSelect').value || '').trim();
+                var isSub = (tunnelName === '청하터널(부)'); // 부전기실
+                console.log('터널명:', tunnelName, ', 부전기실:', isSub);
+
+                // 전력량 시트 열 매핑: (주)=HV-104/105, (부)=HV-204/205
+                var allHvName = isSub ? 'HV-204' : 'HV-104';
+                var lightHvName = isSub ? 'HV-205' : 'HV-105';
+                var allHvFallbackCol = isSub ? null : 'B'; // (주)만 B열 폴백
+
+                // 누계/역률 시트 매핑: (주)=P1/P2, (부)=P12/P13
+                var accAllSheet = isSub ? 'P12' : 'P1';
+                var accLightSheet = isSub ? 'P13' : 'P2';
+
+                // === "전력량" 시트에서 최대수요(kW), 금일유효전력량(kWh) 추출 ===
+                var pwrSheetPath = sheetFileMap['전력량'];
+                if (!pwrSheetPath) {
+                    var pwrIdx = wb_sheetNames.indexOf('전력량');
+                    if (pwrIdx >= 0) pwrSheetPath = 'xl/worksheets/sheet' + (pwrIdx + 1) + '.xml';
+                }
+                console.log('전력량 시트 → 파일경로:', pwrSheetPath);
+
+                if (pwrSheetPath) {
+                    var pwrFile = zip.file(pwrSheetPath);
+                    if (pwrFile) {
+                        var pwrXml = await pwrFile.async('string');
+                        var pwrCells = {};
+                        var pwrMatches = pwrXml.match(/<c [^>]*>[\s\S]*?<\/c>|<c [^>]*\/>/g) || [];
+                        for (var wi = 0; wi < pwrMatches.length; wi++) {
+                            var wXml = pwrMatches[wi];
+                            var wRef = wXml.match(/r="([A-Z]+\d+)"/);
+                            if (!wRef) continue;
+                            var wType = wXml.match(/t="([^"]+)"/);
+                            var wVal = wXml.match(/<v>([^<]*)<\/v>/);
+                            if (!wVal) continue;
+                            if (wType && wType[1] === 's') {
+                                var wIdx = parseInt(wVal[1]);
+                                pwrCells[wRef[1]] = sharedStrings[wIdx] || wVal[1];
+                            } else {
+                                pwrCells[wRef[1]] = wVal[1];
+                            }
+                        }
+                        console.log('전력량 시트 셀 수:', Object.keys(pwrCells).length);
+
+                        // Row5 헤더에서 전체/조명 HV 열 찾기
+                        var allCol = null, lightCol = null;
+                        for (var ref in pwrCells) {
+                            var refMatch = ref.match(/^([A-Z]+)5$/);
+                            if (!refMatch) continue;
+                            var colName = String(pwrCells[ref]).trim();
+                            if (colName === allHvName) allCol = refMatch[1];
+                            if (colName === lightHvName) lightCol = refMatch[1];
+                        }
+                        // (주) HV-104는 B5 병합셀로 비어있으므로 B열 폴백
+                        if (!allCol && allHvFallbackCol) allCol = allHvFallbackCol;
+                        console.log(allHvName + ' 열:', allCol, ',', lightHvName + ' 열:', lightCol);
+
+                        // "최대", "합계" 행 번호 찾기 (A열 기준)
+                        var maxRow = null, sumRow = null;
+                        for (var ref in pwrCells) {
+                            if (!ref.match(/^A\d+$/)) continue;
+                            var cellText = String(pwrCells[ref]).trim();
+                            if (cellText === '최대') maxRow = ref.replace('A', '');
+                            if (cellText === '합계') sumRow = ref.replace('A', '');
+                        }
+                        console.log('최대 행:', maxRow, ', 합계 행:', sumRow);
+
+                        // 전체(HV-104/204): 최대→최대수요, 합계→금일유효
+                        if (allCol) {
+                            if (maxRow) {
+                                var v = parseFloat(pwrCells[allCol + maxRow]);
+                                if (!isNaN(v)) { data.power.all_max = v; console.log('전체 최대수요:', v); }
+                            }
+                            if (sumRow) {
+                                var v = parseFloat(pwrCells[allCol + sumRow]);
+                                if (!isNaN(v)) { data.power.all_sum = v; console.log('전체 금일유효:', v); }
+                            }
+                        }
+                        // 조명용(HV-105/205): 최대→최대수요, 합계→금일유효
+                        if (lightCol) {
+                            if (maxRow) {
+                                var v = parseFloat(pwrCells[lightCol + maxRow]);
+                                if (!isNaN(v)) { data.power.light_max = v; console.log('조명용 최대수요:', v); }
+                            }
+                            if (sumRow) {
+                                var v = parseFloat(pwrCells[lightCol + sumRow]);
+                                if (!isNaN(v)) { data.power.light_sum = v; console.log('조명용 금일유효:', v); }
+                            }
+                        }
+                    }
+                }
+
+                // === 누계 월전력사용량 + 역률 추출 (주: P1/P2, 부: P12/P13) ===
+                var accSheets = [
+                    { sheet: accAllSheet, key: 'all_acc', pfKey: 'all_pf' },
+                    { sheet: accLightSheet, key: 'light_acc', pfKey: 'light_pf' }
+                ];
+                for (var ps = 0; ps < accSheets.length; ps++) {
+                    var psFilePath = sheetFileMap[accSheets[ps].sheet];
+                    if (!psFilePath) {
+                        var psIdx = wb_sheetNames.indexOf(accSheets[ps].sheet);
+                        if (psIdx >= 0) psFilePath = 'xl/worksheets/sheet' + (psIdx + 1) + '.xml';
+                    }
+                    console.log(accSheets[ps].sheet + ' → 파일경로:', psFilePath);
+                    var psFile = psFilePath ? zip.file(psFilePath) : null;
+                    if (!psFile) { console.log(accSheets[ps].sheet + ' 시트 파일 못찾음'); continue; }
+
+                    var psXml = await psFile.async('string');
+                    var psCells = {};
+                    var psCellMatches = psXml.match(/<c [^>]*>[\s\S]*?<\/c>|<c [^>]*\/>/g) || [];
+                    for (var pci = 0; pci < psCellMatches.length; pci++) {
+                        var pcXml = psCellMatches[pci];
+                        var pcRef = pcXml.match(/r="([A-Z]+\d+)"/);
+                        if (!pcRef) continue;
+                        var pcType = pcXml.match(/t="([^"]+)"/);
+                        var pcVal = pcXml.match(/<v>([^<]*)<\/v>/);
+                        if (!pcVal) continue;
+                        if (pcType && pcType[1] === 's') {
+                            var pcIdx = parseInt(pcVal[1]);
+                            psCells[pcRef[1]] = sharedStrings[pcIdx] || pcVal[1];
+                        } else {
+                            psCells[pcRef[1]] = pcVal[1];
+                        }
+                    }
+                    console.log(accSheets[ps].sheet + ' 셀 수:', Object.keys(psCells).length);
+
+                    // "역률" 열 찾기 (Row5 헤더에서 검색)
+                    var pfCol = null;
+                    for (var ref in psCells) {
+                        var rm = ref.match(/^([A-Z]+)5$/);
+                        if (rm && String(psCells[ref]).trim() === '역률') { pfCol = rm[1]; break; }
+                    }
+                    console.log(accSheets[ps].sheet + ' 역률 열:', pfCol);
+
+                    // "최대" 행 → B열: 누계 월전력사용량, 역률열: 역률(%)
+                    for (var ref in psCells) {
+                        if (String(psCells[ref]).trim() === '최대') {
+                            var accRow = ref.replace(/[A-Z]/g, '');
+                            var accVal = parseFloat(psCells['B' + accRow]);
+                            if (!isNaN(accVal)) {
+                                data.power[accSheets[ps].key] = accVal;
+                                console.log(accSheets[ps].sheet + ' 누계:', accVal, '(B' + accRow + ')');
+                            }
+                            // 역률 추출 (0~1 소수 → 백분율 변환)
+                            if (pfCol) {
+                                var pfVal = parseFloat(psCells[pfCol + accRow]);
+                                if (!isNaN(pfVal)) {
+                                    data.power[accSheets[ps].pfKey] = pfVal <= 1 ? pfVal * 100 : pfVal;
+                                    console.log(accSheets[ps].sheet + ' 역률:', data.power[accSheets[ps].pfKey], '%');
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                // === P1~P7 시트에서 고압반/저압반 전압·전류 추출 (C31~H31 "평균" 행) ===
+                data.panels = [];
+                var panelSheets = [
+                    { sheet: 'P1', name: 'HV-104' },
+                    { sheet: 'P2', name: 'HV-105' },
+                    { sheet: 'P3', name: 'HV-106' },
+                    { sheet: 'P4', name: 'HV-107' },
+                    { sheet: 'P5', name: 'LV-101' },
+                    { sheet: 'P6', name: 'LV-105' },
+                    { sheet: 'P7', name: 'LV-108' }
+                ];
+                for (var pi = 0; pi < panelSheets.length; pi++) {
+                    var psInfo = panelSheets[pi];
+                    var psPath = sheetFileMap[psInfo.sheet];
+                    if (!psPath) {
+                        var psIdx = wb_sheetNames.indexOf(psInfo.sheet);
+                        if (psIdx >= 0) psPath = 'xl/worksheets/sheet' + (psIdx + 1) + '.xml';
+                    }
+                    var psFile = psPath ? zip.file(psPath) : null;
+                    if (!psFile) { console.log(psInfo.sheet + ' 시트 파일 못찾음'); continue; }
+
+                    var psXml = await psFile.async('string');
+                    var psCells = {};
+                    var psCellMatches = psXml.match(/<c [^>]*>[\s\S]*?<\/c>|<c [^>]*\/>/g) || [];
+                    for (var pci = 0; pci < psCellMatches.length; pci++) {
+                        var pcXml = psCellMatches[pci];
+                        var pcRef = pcXml.match(/r="([A-Z]+\d+)"/);
+                        if (!pcRef) continue;
+                        var pcType = pcXml.match(/t="([^"]+)"/);
+                        var pcVal = pcXml.match(/<v>([^<]*)<\/v>/);
+                        if (!pcVal) continue;
+                        if (pcType && pcType[1] === 's') {
+                            var pcIdx2 = parseInt(pcVal[1]);
+                            psCells[pcRef[1]] = sharedStrings[pcIdx2] || pcVal[1];
+                        } else {
+                            psCells[pcRef[1]] = pcVal[1];
+                        }
+                    }
+
+                    // "평균" 행 찾기
+                    var avgRow = null;
+                    for (var ref in psCells) {
+                        if (ref.match(/^A\d+$/) && String(psCells[ref]).trim() === '평균') {
+                            avgRow = ref.replace('A', '');
+                            break;
+                        }
+                    }
+                    if (!avgRow) { console.log(psInfo.sheet + ' "평균" 행 못찾음'); continue; }
+
+                    // C~H열 (R-S, S-T, T-R, R, S, T) 추출
+                    var cols = ['C', 'D', 'E', 'F', 'G', 'H'];
+                    var vals = cols.map(function(c) {
+                        var v = parseFloat(psCells[c + avgRow]);
+                        return isNaN(v) ? null : v;
+                    });
+                    data.panels.push({ name: psInfo.name, sheet: psInfo.sheet, values: vals });
+                    console.log(psInfo.sheet + '(' + psInfo.name + ') 평균:', vals);
+                }
+
+                // 필드 수 계산
+                var totalFields = 0;
+                if (data.panels) {
+                    data.panels.forEach(function(p) {
+                        p.values.forEach(function(v) { if (v !== null) totalFields++; });
+                    });
+                }
+                if (data.power) {
+                    if(data.power.all_max) totalFields++;
+                    if(data.power.all_sum) totalFields++;
+                    if(data.power.all_acc) totalFields++;
+                    if(data.power.all_pf) totalFields++;
+                    if(data.power.light_max) totalFields++;
+                    if(data.power.light_sum) totalFields++;
+                    if(data.power.light_acc) totalFields++;
+                    if(data.power.light_pf) totalFields++;
+                }
+                console.log('엑셀에서 추출:', totalFields, '개 필드');
+
+                excelImportData = data;
+
+                if (totalFields > 0) {
+                    setExcelStatus('엑셀 데이터 불러오기 완료! ' + totalFields + '개 항목. [③ 폼에 적용] 버튼을 누르세요.', 'success');
+                    var html = '<div style="font-size:13px;color:#374151;margin-top:8px;">';
+                    if (data.power) {
+                        html += '<b>전력사용량:</b><br>';
+                        html += '&nbsp;&nbsp;전체 — 최대수요=' + (data.power.all_max ? Math.floor(data.power.all_max) : '-') + 'kW, ';
+                        html += '금일유효=' + (data.power.all_sum ? Math.floor(data.power.all_sum) : '-') + 'kWh, ';
+                        html += '누계=' + (data.power.all_acc ? Math.floor(data.power.all_acc) : '-') + 'kWh, ';
+                        html += '역률=' + (data.power.all_pf ? data.power.all_pf.toFixed(1) : '-') + '%<br>';
+                        html += '&nbsp;&nbsp;조명용 — 최대수요=' + (data.power.light_max ? Math.floor(data.power.light_max) : '-') + 'kW, ';
+                        html += '금일유효=' + (data.power.light_sum ? Math.floor(data.power.light_sum) : '-') + 'kWh, ';
+                        html += '누계=' + (data.power.light_acc ? Math.floor(data.power.light_acc) : '-') + 'kWh, ';
+                        html += '역률=' + (data.power.light_pf ? data.power.light_pf.toFixed(1) : '-') + '%';
+                    }
+                    if (data.panels && data.panels.length > 0) {
+                        html += '<br><b>고압반/저압반:</b><br>';
+                        data.panels.forEach(function(p) {
+                            var v = p.values;
+                            html += '&nbsp;&nbsp;' + p.name + ' — ';
+                            html += 'R-S=' + (v[0] !== null ? v[0].toFixed(1) : '-') + ', ';
+                            html += 'S-T=' + (v[1] !== null ? v[1].toFixed(1) : '-') + ', ';
+                            html += 'T-R=' + (v[2] !== null ? v[2].toFixed(1) : '-') + ' | ';
+                            html += 'R=' + (v[3] !== null ? v[3].toFixed(2) : '-') + ', ';
+                            html += 'S=' + (v[4] !== null ? v[4].toFixed(2) : '-') + ', ';
+                            html += 'T=' + (v[5] !== null ? v[5].toFixed(2) : '-') + '<br>';
+                        });
+                    }
+                    html += '</div>';
+                    document.getElementById('excelResultContent').innerHTML = html;
+                    document.getElementById('excelResults').style.display = 'block';
+                } else {
+                    setExcelStatus('엑셀 파일에서 데이터를 찾지 못했습니다.', 'error');
+                }
+            } catch (err) {
+                console.error('Excel Import Error:', err);
+                setExcelStatus('엑셀 읽기 오류: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '② 엑셀 불러오기';
+            }
+        }
+
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+
+        // ============================================================
+
+        // ============================================================
+
+        // ===== HMI 엑셀 데이터 → 폼에 적용 =====
+        function applyExcelResults() {
+            if (!excelImportData) return;
+            let appliedCount = 0;
+            let unmeasuredCount = 0;
+
+            // === 전력사용량 ===
+            // P1(HV-104): 최대→최대수요/전체(M48), 합계→금일유효/전체(R48), 최대→누계/전체(W48)
+            // P2(HV-105): 최대→최대수요/조명(M49), 합계→금일유효/조명(R49), 최대→누계/조명(W49)
+            try {
+            console.log('[전력사용량] excelImportData.power:', JSON.stringify(excelImportData.power));
+            if (excelImportData.power) {
+                var powerMap = [
+                    { key: 'all_max', cell: 'M48', id: null, isPf: false },
+                    { key: 'all_sum', cell: 'R48', id: 'powerAllDaily', isPf: false },
+                    { key: 'all_acc', cell: 'W48', id: 'powerAllAcc', isPf: false },
+                    { key: 'all_pf', cell: 'AH48', id: null, isPf: true },
+                    { key: 'light_max', cell: 'M49', id: null, isPf: false },
+                    { key: 'light_sum', cell: 'R49', id: 'powerLightDaily', isPf: false },
+                    { key: 'light_acc', cell: 'W49', id: 'powerLightAcc', isPf: false },
+                    { key: 'light_pf', cell: 'AH49', id: null, isPf: true }
+                ];
+                for (var pi = 0; pi < powerMap.length; pi++) {
+                    var pm = powerMap[pi];
+                    var el = document.querySelector('[data-cell="' + pm.cell + '"]');
+                    console.log('[전력사용량] ' + pm.key + ': el=' + (el ? 'found' : 'NOT FOUND') + ', value=' + (excelImportData.power[pm.key]));
+                    if (el && excelImportData.power[pm.key] !== null && excelImportData.power[pm.key] !== undefined) {
+                        var rawVal = parseFloat(excelImportData.power[pm.key]);
+                        // 역률은 소수점 1자리, 나머지는 소수점 절사
+                        var displayVal = pm.isPf ? rawVal.toFixed(1) : Math.floor(rawVal);
+                        var formatted = pm.isPf ? displayVal : formatWithComma(displayVal);
+                        el.value = formatted;
+                        el.style.backgroundColor = '#fef9c3';
+                        if (pm.id) localStorage.setItem(pm.id, displayVal);
+                        appliedCount++;
+                        console.log('[전력사용량] 적용 완료:', pm.key, '=', formatted, '→', pm.cell);
+                    }
+                }
+                // 자동계산 실행 (일반/동력용 = 전체 - 조명용)
+                if (typeof window.calcGenPower === 'function') {
+                    window.calcGenPower();
+                    console.log('[전력사용량] calcGenPower 실행 완료');
+                }
+            } else {
+                console.log('[전력사용량] excelImportData.power가 없음');
+            }
+            } catch(e) { console.error('전력사용량 적용 오류:', e); alert('전력사용량 적용 오류: ' + e.message); }
+
+            // === 고압반/저압반 패널 데이터 적용 ===
+            try {
+            if (excelImportData.panels && excelImportData.panels.length > 0) {
+                // HV, LV 패널 행에서 이름→행 매핑 구축
+                var allPanelRows = [];
+                document.querySelectorAll('#hvPanels .panel-row, #lvPanels .panel-row').forEach(function(row) {
+                    var nameInput = row.querySelector('input[data-cell="none"]');
+                    if (nameInput) allPanelRows.push({ name: nameInput.value.trim(), row: row });
+                });
+
+                // HV 패널 행 목록 (고압반: 소수점 1자리)
+                var hvRowSet = new Set();
+                document.querySelectorAll('#hvPanels .panel-row').forEach(function(row) { hvRowSet.add(row); });
+
+                excelImportData.panels.forEach(function(panel) {
+                    // 폼에서 일치하는 패널명 찾기
+                    var match = null;
+                    for (var i = 0; i < allPanelRows.length; i++) {
+                        if (allPanelRows[i].name === panel.name) { match = allPanelRows[i].row; break; }
+                    }
+                    // 번호만으로 유연 매칭
+                    if (!match) {
+                        var num = panel.name.replace(/\D/g, '');
+                        for (var i = 0; i < allPanelRows.length; i++) {
+                            if (allPanelRows[i].name.replace(/\D/g, '') === num) { match = allPanelRows[i].row; break; }
+                        }
+                    }
+                    if (!match) { console.log('패널 매칭 실패:', panel.name); return; }
+
+                    // 고압반: 소수점 1자리, 저압반: 소수점 절사
+                    var isHV = hvRowSet.has(match);
+                    var inputs = match.querySelectorAll('input[data-numeric="true"]');
+                    panel.values.forEach(function(v, idx) {
+                        if (inputs[idx]) {
+                            if (v !== null && v !== undefined && v !== 0) {
+                                var val = v;
+                                // 고압반: 1000 이상 값은 V→kV 변환 (÷1000)
+                                if (isHV && val >= 1000) val = val / 1000;
+                                var displayVal = isHV ? val.toFixed(1) : formatWithComma(Math.floor(val));
+                                inputs[idx].value = displayVal;
+                                inputs[idx].style.backgroundColor = '#fef9c3';
+                                appliedCount++;
+                            } else {
+                                inputs[idx].value = '-';
+                                inputs[idx].style.backgroundColor = '#f3f4f6';
+                                unmeasuredCount++;
+                            }
+                        }
+                    });
+                    console.log('[패널] 적용:', panel.name, '(isHV=' + isHV + ')', panel.values);
+                });
+            }
+            } catch(e) { console.error('패널 적용 오류:', e); alert('패널 적용 오류: ' + e.message); }
+
+            let msg = `${appliedCount}개 항목 적용 완료 (노란색 배경)`;
+            if (unmeasuredCount > 0) msg += ` | ${unmeasuredCount}개 측정불가 (빨간 배경)`;
+            setExcelStatus(msg, 'success');
+            document.getElementById('excelResults').style.display = 'none';
+
+            // Scroll to first data section
+            document.getElementById('hvPanels').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ============ End HMI Excel Import ============
+
+        // Initialize form with defaults
+        function getTunnelName() {
+            const sel = document.getElementById('tunnelSelect');
+            if (sel.value === '기타') {
+                return document.getElementById('tunnelCustom').value.trim() || '기타';
+            }
+            return sel.value;
+        }
+
+        function onTunnelChange() {
+            const sel = document.getElementById('tunnelSelect');
+            const customInput = document.getElementById('tunnelCustom');
+            if (sel.value === '기타') {
+                customInput.style.display = 'inline-block';
+                customInput.focus();
+            } else {
+                customInput.style.display = 'none';
+                customInput.value = '';
+            }
+        }
+
+        function updateTitle() {
+            // placeholder for future use if needed
+        }
+
+        function initializeForm() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            document.getElementById('weather').value = '맑음';
+            document.getElementById('managerSelect').value = '김  동  록';
+            document.getElementById('manager').value = '김  동  록';
+
+            // 전력사용량 누계: 마지막 입력값 복원 (localStorage)
+            var savedPowerAllAcc = localStorage.getItem('powerAllAcc');
+            var savedPowerLightAcc = localStorage.getItem('powerLightAcc');
+            if (savedPowerAllAcc) document.getElementById('powerAllAcc').value = formatWithComma(Math.floor(parseFloat(savedPowerAllAcc)));
+            if (savedPowerLightAcc) document.getElementById('powerLightAcc').value = formatWithComma(Math.floor(parseFloat(savedPowerLightAcc)));
+
+            // 사용누계, 잔량: 마지막 입력값 복원 (localStorage)
+            const savedFuelTotal = localStorage.getItem('fuelTotal');
+            const savedFuelRemain = localStorage.getItem('fuelRemain');
+            if (savedFuelTotal) document.getElementById('fuelTotal').value = formatWithComma(savedFuelTotal);
+            if (savedFuelRemain) document.getElementById('fuelRemain').value = formatWithComma(savedFuelRemain);
+            
+            // Initialize HV panels (4 default rows)
+            const hvPanels = document.getElementById('hvPanels');
+            hvPanels.innerHTML = '<div class="panel-row-header" style="display:grid;grid-template-columns:90px repeat(6,1fr) 50px;gap:8px;margin-bottom:4px;font-size:12px;font-weight:600;color:#555;text-align:center;"><div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">구분</div><div style="grid-column:span 3;border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">전압 (kV)</div><div style="grid-column:span 3;border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">전류 (A)</div><div></div></div><div class="panel-row-header" style="display:grid;grid-template-columns:90px repeat(6,1fr) 50px;gap:8px;margin-bottom:6px;font-size:11px;font-weight:600;color:#555;text-align:center;"><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">판넬명</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">R-S</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">S-T</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">T-R</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">R</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">S</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">T</div><div></div></div>';
+            const hvDefaults = [
+                { name: 'HV-104', cells: ['I6', 'O6', 'S6', 'W6', 'AA6', 'AG6', 'AK6'] },
+                { name: 'HV-105', cells: ['I7', 'O7', 'S7', 'W7', 'AA7', 'AG7', 'AK7'] },
+                { name: 'HV-106', cells: ['I8', 'O8', 'S8', 'W8', 'AA8', 'AG8', 'AK8'] },
+                { name: 'HV-107', cells: ['I9', 'O9', 'S9', 'W9', 'AA9', 'AG9', 'AK9'] }
+            ];
+            
+            hvDefaults.forEach((panel, idx) => {
+                addHVPanelRow(hvPanels, panel.name, panel.cells, idx);
+            });
+            
+            // Initialize LV panels (3 default rows)
+            const lvPanels = document.getElementById('lvPanels');
+            lvPanels.innerHTML = '<div class="panel-row-header" style="display:grid;grid-template-columns:90px repeat(6,1fr) 50px;gap:8px;margin-bottom:4px;font-size:12px;font-weight:600;color:#555;text-align:center;"><div style="border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">구분</div><div style="grid-column:span 3;border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">전압 (V)</div><div style="grid-column:span 3;border-bottom:2px solid #667eea;padding-bottom:3px;margin:0 1px;">전류 (A)</div><div></div></div><div class="panel-row-header" style="display:grid;grid-template-columns:90px repeat(6,1fr) 50px;gap:8px;margin-bottom:6px;font-size:11px;font-weight:600;color:#555;text-align:center;"><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">판넬명</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">R-S</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">S-T</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">T-R</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">R</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">S</div><div style="border-bottom:2px solid #a5b4fc;padding-bottom:3px;margin:0 1px;">T</div><div></div></div>';
+            const lvDefaults = [
+                { name: 'LV-101', cells: ['I12', 'O12', 'S12', 'W12', 'AA12', 'AG12', 'AK12'] },
+                { name: 'LV-105', cells: ['I13', 'O13', 'S13', 'W13', 'AA13', 'AG13', 'AK13'] },
+                { name: 'LV-108', cells: ['I14', 'O14', 'S14', 'W14', 'AA14', 'AG14', 'AK14'] }
+            ];
+            
+            lvDefaults.forEach((panel, idx) => {
+                addLVPanelRow(lvPanels, panel.name, panel.cells, idx);
+            });
+            
+            // Initialize work items (5 default rows)
+            const workItems = document.getElementById('workItems');
+            workItems.innerHTML = '';
+            const workCells = ['E32', 'E33', 'E34', 'E35', 'E36'];
+            
+            workCells.forEach((cell, idx) => {
+                addWorkItemRow(workItems, cell, idx === 0);
+            });
+        }
+        
+        function addHVPanelRow(container, name, cells, index) {
+            const row = document.createElement('div');
+            row.className = 'panel-row';
+            row.innerHTML = `
+                <div class="panel-row-input">
+                    <div>
+                        <input type="text" placeholder="패널명" value="${name}" data-cell="none" style="font-weight: bold;">
+                    </div>
+                    <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="kV" data-cell="${cells[0]}">
+                    <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="kV" data-cell="${cells[1]}">
+                    <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="kV" data-cell="${cells[2]}">
+                    <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="${cells[3]}">
+                    <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="${cells[4]}">
+                    <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="${cells[5]}">
+                    <button type="button" class="btn-remove" onclick="this.parentElement.parentElement.remove()">삭제</button>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+        
+        function addHVPanel() {
+            const container = document.getElementById('hvPanels');
+            const panelName = 'HV-' + (Math.floor(Math.random() * 900) + 100);
+            const newCells = ['I10', 'O10', 'S10', 'W10', 'AA10', 'AG10', 'AK10'];
+            addHVPanelRow(container, panelName, newCells, container.children.length);
+        }
+        
+        function addLVPanelRow(container, name, cells, index) {
+            const row = document.createElement('div');
+            row.className = 'panel-row';
+            row.innerHTML = `
+                <div class="panel-row-input">
+                    <div>
+                        <input type="text" placeholder="패널명" value="${name}" data-cell="none" style="font-weight: bold;">
+                    </div>
+                    <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="kV" data-cell="${cells[0]}">
+                    <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="kV" data-cell="${cells[1]}">
+                    <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="kV" data-cell="${cells[2]}">
+                    <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="${cells[3]}">
+                    <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="${cells[4]}">
+                    <input type="text" inputmode="decimal" data-numeric="true" step="0.1" placeholder="A" data-cell="${cells[5]}">
+                    <button type="button" class="btn-remove" onclick="this.parentElement.parentElement.remove()">삭제</button>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+        
+        function addLVPanel() {
+            const container = document.getElementById('lvPanels');
+            const panelName = 'LV-' + (Math.floor(Math.random() * 900) + 100);
+            const newCells = ['I15', 'O15', 'S15', 'W15', 'AA15', 'AG15', 'AK15'];
+            addLVPanelRow(container, panelName, newCells, container.children.length);
+        }
+        
+        function addWorkItemRow(container, cell, isFirst) {
+            const row = document.createElement('div');
+            row.className = 'form-group';
+            const prefix = isFirst ? '* ' : '';
+            row.innerHTML = `
+                <div style="display: flex; gap: 10px; align-items: flex-end;">
+                    <input type="text" placeholder="작업내용" data-cell="${cell}" style="flex: 1;" value="${prefix}">
+                    <button type="button" class="btn-remove" onclick="this.parentElement.parentElement.remove()">삭제</button>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+        
+        function addWorkItem() {
+            const container = document.getElementById('workItems');
+            const cellNum = 32 + container.children.length;
+            addWorkItemRow(container, 'E' + cellNum, false);
+        }
+        
+        // XML utility functions
+        function escapeXml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&apos;');
+        }
+        
+        function dateToExcelSerial(dateStr) {
+            const date = new Date(dateStr);
+            const epoch = new Date(1899, 11, 30);
+            const diff = date.getTime() - epoch.getTime();
+            return Math.floor(diff / (24 * 60 * 60 * 1000));
+        }
+        
+        function timeToExcelFraction(timeStr) {
+            if (!timeStr) return 0;
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return (hours * 60 + minutes) / (24 * 60);
+        }
+        
+        function updateCell(xml, cellRef, value, type) {
+            if (value === '' || value === null || value === undefined) return xml;
+            
+            const cellPattern = new RegExp(`<c r="${cellRef}"([^>]*)>(.*?)</c>`, 's');
+            const match = xml.match(cellPattern);
+            
+            if (match) {
+                let attrs = match[1];
+                let newContent;
+                
+                if (type === 'string') {
+                    attrs = attrs.replace(/ t="[^"]*"/g, '');
+                    attrs += ' t="inlineStr"';
+                    newContent = `<is><t>${escapeXml(String(value))}</t></is>`;
+                } else if (type === 'time_fraction') {
+                    const fraction = timeToExcelFraction(value);
+                    attrs = attrs.replace(/ t="[^"]*"/g, '');
+                    newContent = `<v>${fraction}</v>`;
+                } else {
+                    attrs = attrs.replace(/ t="[^"]*"/g, '');
+                    newContent = `<v>${value}</v>`;
+                }
+                
+                xml = xml.replace(cellPattern, `<c r="${cellRef}"${attrs}>${newContent}</c>`);
+            }
+            
+            return xml;
+        }
+        
+        function updateSheetNames(workbookXml, dateStr) {
+            const dateParts = new Date(dateStr);
+            const month = String(dateParts.getMonth() + 1).padStart(2, '0');
+            const day = String(dateParts.getDate()).padStart(2, '0');
+            const mmdd = month + day;
+            
+            let xml = workbookXml;
+            xml = xml.replace(/name="0227-1"/g, `name="${mmdd}-1"`);
+            xml = xml.replace(/name="0227-2"/g, `name="${mmdd}-2"`);
+            xml = xml.replace(/'0227-1'!/g, `'${mmdd}-1'!`);
+            xml = xml.replace(/'0227-2'!/g, `'${mmdd}-2'!`);
+            
+            return xml;
+        }
+        
+        async function generateExcel() {
+            try {
+                alert('엑셀 파일 생성 중...');
+                
+                // Get form data
+                const dateVal = document.getElementById('date').value;
+                const weather = document.getElementById('weather').value;
+                const manager = document.getElementById('manager').value;
+                
+                // Decode base64 template
+                const binaryString = atob(TEMPLATE_B64);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                
+                // Load as JSZip
+                const zip = await JSZip.loadAsync(bytes);
+                
+                // Get sheet XMLs
+                let sheet1Xml = await zip.file('xl/worksheets/sheet1.xml').async('string');
+                let sheet2Xml = await zip.file('xl/worksheets/sheet2.xml').async('string');
+                let workbookXml = await zip.file('xl/workbook.xml').async('string');
+                
+                // Update sheet names
+                workbookXml = updateSheetNames(workbookXml, dateVal);
+                
+                // Update Sheet 1 cells
+                const serialDate = dateToExcelSerial(dateVal);
+                const tunnelName = getTunnelName();
+                sheet1Xml = updateCell(sheet1Xml, 'A1', tunnelName + ' 일일점검일지', 'string');
+                sheet1Xml = updateCell(sheet1Xml, 'D3', serialDate, 'number');
+                sheet1Xml = updateCell(sheet1Xml, 'R3', weather, 'string');
+                sheet1Xml = updateCell(sheet1Xml, 'H5', manager, 'string');
+                
+                // Sheet 1 cells (점검일지 1페이지: 발전기, 전력사용량)
+                const sheet1Cells = new Set(['K44','O44','S44','W44','AA44',
+                    'AG44','AJ44','AM44','AP44',
+                    'M48','R48','W48','AH48','AM48',
+                    'M49','R49','W49','AH49',
+                    'R50','W50','AH50']);
+
+                // Process all data-cell inputs
+                document.querySelectorAll('input[data-cell], select[data-cell]').forEach(el => {
+                    const cell = el.dataset.cell;
+                    const value = el.value;
+
+                    if (cell === 'none' || !cell || value === '') return;
+                    if (el.id === 'date' || el.id === 'weather' || el.id === 'manager') return;
+
+                    const isSheet1 = sheet1Cells.has(cell);
+
+                    if (el.type === 'time') {
+                        sheet2Xml = updateCell(sheet2Xml, cell, value, 'time_fraction');
+                    } else if (el.dataset.numeric === 'true' && !isNaN(parseFloat(value.replace(/,/g, '')))) {
+                        var numVal = parseFloat(value.replace(/,/g, ''));
+                        if (isSheet1) {
+                            sheet1Xml = updateCell(sheet1Xml, cell, numVal, 'number');
+                        } else {
+                            sheet2Xml = updateCell(sheet2Xml, cell, numVal, 'number');
+                        }
+                    } else {
+                        if (isSheet1) {
+                            sheet1Xml = updateCell(sheet1Xml, cell, value, 'string');
+                        } else {
+                            sheet2Xml = updateCell(sheet2Xml, cell, value, 'string');
+                        }
+                    }
+                });
+
+                // Sheet 2: title (A1) and date (AB2)
+                sheet2Xml = updateCell(sheet2Xml, 'A1', tunnelName + ' 일일점검 항목별 첨부자료', 'string');
+                sheet2Xml = updateCell(sheet2Xml, 'AB2', serialDate, 'number');
+
+                // Sheet 2: HV panel names (I6-I9) - need " " prefix
+                document.querySelectorAll('#hvPanels .panel-row').forEach((row, idx) => {
+                    const nameInput = row.querySelector('input[data-cell="none"]');
+                    if (nameInput && nameInput.value && idx < 4) {
+                        const nameCell = ['I6','I7','I8','I9'][idx];
+                        sheet2Xml = updateCell(sheet2Xml, nameCell, ' ' + nameInput.value, 'string');
+                    }
+                });
+
+                // Sheet 2: LV panel names (I12-I14)
+                document.querySelectorAll('#lvPanels .panel-row').forEach((row, idx) => {
+                    const nameInput = row.querySelector('input[data-cell="none"]');
+                    if (nameInput && nameInput.value && idx < 3) {
+                        const nameCell = ['I12','I13','I14'][idx];
+                        sheet2Xml = updateCell(sheet2Xml, nameCell, ' ' + nameInput.value, 'string');
+                    }
+                });
+                
+                // Update zip files
+                zip.file('xl/worksheets/sheet1.xml', sheet1Xml);
+                zip.file('xl/worksheets/sheet2.xml', sheet2Xml);
+                zip.file('xl/workbook.xml', workbookXml);
+
+                // Remove calcChain.xml - we removed formulas from D3, AB2, R50, AO23
+                // If this file remains, Excel triggers repair mode which corrupts formatting
+                zip.remove('xl/calcChain.xml');
+
+                // Also remove calcChain reference from [Content_Types].xml
+                let contentTypes = await zip.file('[Content_Types].xml').async('string');
+                contentTypes = contentTypes.replace(/<Override[^>]*calcChain[^>]*\/>/g, '');
+                zip.file('[Content_Types].xml', contentTypes);
+
+                // Generate new Excel file (preserve DEFLATE compression like original)
+                const newZip = await zip.generateAsync({
+                    type: 'blob',
+                    compression: 'DEFLATE',
+                    compressionOptions: { level: 6 },
+                    mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                });
+                
+                // Download
+                const dateStr = dateVal.replace(/-/g, '');
+                saveAs(newZip, `${tunnelName}_일일점검일지_${dateStr}.xlsx`);
+                
+                alert('엑셀 파일이 생성되었습니다!');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('오류 발생: ' + error.message);
+            }
+        }
+        
+        
+        // Initialize on page load
+        function onManagerChange() {
+            var sel = document.getElementById('managerSelect');
+            var inp = document.getElementById('manager');
+            if (sel.value === '__custom__') {
+                inp.style.display = '';
+                inp.value = '';
+                inp.focus();
+            } else {
+                inp.style.display = 'none';
+                inp.value = sel.value;
+            }
+        }
+
+        function onGenReasonChange() {
+            var sel = document.getElementById('genReasonSelect');
+            var inp = document.getElementById('genReason');
+            if (sel.value === '__custom__') {
+                inp.style.display = '';
+                inp.value = '';
+                inp.focus();
+            } else {
+                inp.style.display = 'none';
+                inp.value = sel.value;
+            }
+        }
+
+        // 1,000 단위 콤마 포맷팅
+        function formatWithComma(val) {
+            if (val === '' || val === null || val === undefined) return '';
+            var str = String(val).replace(/,/g, '');
+            var num = parseFloat(str);
+            if (isNaN(num)) return val;
+            var parts = str.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return parts.join('.');
+        }
+
+        function stripComma(val) {
+            return String(val).replace(/,/g, '');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeForm();
+
+            // 숫자 입력 필드: blur 시 콤마 포맷, focus 시 콤마 제거
+            var powerIds = ['powerAllAcc','powerLightAcc','powerGenAcc','powerAllDaily','powerLightDaily','powerGenDaily'];
+            document.addEventListener('blur', function(e) {
+                if (e.target && e.target.dataset && e.target.dataset.numeric === 'true') {
+                    // 전력사용량 필드는 소수점 절사
+                    if (powerIds.indexOf(e.target.id) >= 0) {
+                        var num = parseFloat(stripComma(e.target.value));
+                        if (!isNaN(num)) e.target.value = formatWithComma(Math.floor(num));
+                        else if (e.target.value) e.target.value = formatWithComma(e.target.value);
+                    } else {
+                        e.target.value = formatWithComma(e.target.value);
+                    }
+                }
+            }, true);
+            document.addEventListener('focus', function(e) {
+                if (e.target && e.target.dataset && e.target.dataset.numeric === 'true') {
+                    e.target.value = stripComma(e.target.value);
+                }
+            }, true);
+
+            // 사용누계, 잔량 변경 시 localStorage에 저장
+            document.getElementById('fuelTotal').addEventListener('input', function() {
+                localStorage.setItem('fuelTotal', stripComma(this.value));
+            });
+            document.getElementById('fuelRemain').addEventListener('input', function() {
+                localStorage.setItem('fuelRemain', stripComma(this.value));
+            });
+            document.getElementById('powerAllAcc').addEventListener('input', function() {
+                localStorage.setItem('powerAllAcc', stripComma(this.value));
+            });
+            document.getElementById('powerLightAcc').addEventListener('input', function() {
+                localStorage.setItem('powerLightAcc', stripComma(this.value));
+            });
+
+            // 일사용량에 값이 있으면 청소~진동 상태를 "양호"로, 비면 빈칸으로
+            document.getElementById('fuelDaily').addEventListener('input', function() {
+                var val = stripComma(this.value).trim();
+                var status = (val !== '' && parseFloat(val) > 0) ? '양호' : '';
+                ['cleanStatus','leakStatus','heaterStatus','vibrationStatus'].forEach(function(id) {
+                    document.getElementById(id).value = status;
+                });
+            });
+
+            // 일반/동력용 = 전체 - 조명용 (누계, 금일유효 모두 자동계산)
+            // 전역 함수로 등록하여 applyExcelResults에서도 호출 가능
+            window.calcGenPower = function() {
+                // 누계 월전력사용량
+                var allAcc = Math.floor(parseFloat(stripComma(document.getElementById('powerAllAcc').value)) || 0);
+                var lightAcc = Math.floor(parseFloat(stripComma(document.getElementById('powerLightAcc').value)) || 0);
+                document.getElementById('powerGenAcc').value = (allAcc > 0 || lightAcc > 0) ? formatWithComma(allAcc - lightAcc) : '';
+                // 금일 유효전력량
+                var allDaily = Math.floor(parseFloat(stripComma(document.getElementById('powerAllDaily').value)) || 0);
+                var lightDaily = Math.floor(parseFloat(stripComma(document.getElementById('powerLightDaily').value)) || 0);
+                document.getElementById('powerGenDaily').value = (allDaily > 0 || lightDaily > 0) ? formatWithComma(allDaily - lightDaily) : '';
+            };
+            ['powerAllAcc','powerLightAcc','powerAllDaily','powerLightDaily'].forEach(function(id) {
+                document.getElementById(id).addEventListener('input', window.calcGenPower);
+                document.getElementById(id).addEventListener('change', window.calcGenPower);
+            });
+
+            // 배율: localStorage 저장/복원
+            var savedMultiplier = localStorage.getItem('powerMultiplier');
+            if (savedMultiplier) document.getElementById('powerMultiplier').value = savedMultiplier;
+            document.getElementById('powerMultiplier').addEventListener('input', function() {
+                localStorage.setItem('powerMultiplier', this.value);
+            });
+        });
+    </script>
+</body>
+</html>
